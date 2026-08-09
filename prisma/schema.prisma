@@ -1,0 +1,90 @@
+generator client {
+  provider      = "prisma-client-js"
+  // "native" for local dev; the rhel target is what Vercel's build image needs.
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Coach {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  clinicName   String   @default("Master Mind Body Global")
+  anthropicKey String? // optional, stored per coach for AI analysis
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  clients      Client[]
+  reports      Report[]
+}
+
+model Client {
+  id        String   @id @default(cuid())
+  coachId   String
+  coach     Coach    @relation(fields: [coachId], references: [id], onDelete: Cascade)
+  name      String
+  sex       String
+  dob       String? // optional date of birth
+  phone     String?
+  email     String?
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  reports   Report[]
+
+  @@index([coachId])
+}
+
+model Report {
+  id      String  @id @default(cuid())
+  coachId String
+  coach   Coach   @relation(fields: [coachId], references: [id], onDelete: Cascade)
+  client  Client? @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  clientId String?
+
+  // Snapshot of subject info (kept on the report so history is immutable)
+  clientName    String
+  age           Int
+  sex           String
+  heightCm      Float
+  weightKg      Float
+  activityLevel  String
+  incomeGroup    String
+  allergies      String @default("")
+  dietType       String // therapeutic goal / condition
+  dietPreference String @default("vegetarian") // vegetarian | non-vegetarian | eggetarian | vegan
+  objective      String @default("")
+
+  // Configurable calc settings (JSON) + computed results (JSON)
+  settings   String @default("{}") // NutritionSettings
+  results    String @default("{}") // CalcResults (IBW, BMI, BMR, energy, macros, RDA, comparison)
+  menuPlan   String @default("{}") // comprehensive/distributive/descriptive menus
+  analysis   String @default("{}") // goals, dos/donts, include/exclude, aiNarrative
+  aiProvider String @default("builtin") // builtin | claude
+
+  status    String   @default("draft") // draft | final
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([coachId])
+  @@index([clientId])
+}
+
+model FoodExchange {
+  id        String  @id @default(cuid())
+  group     String // CEREALS, PULSES, MILK, MEAT, VEG_A, VEG_B, VEG_C, FRUITS, SUGARS, FATS, NUTS
+  subgroup  String  @default("")
+  name      String
+  amountG   Float // grams for one exchange
+  protein   Float
+  fat       Float
+  cho       Float
+  energy    Float
+  note      String  @default("")
+
+  @@index([group])
+}
