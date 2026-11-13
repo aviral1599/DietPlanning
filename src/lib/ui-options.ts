@@ -17,6 +17,7 @@ export const DIET_PREFERENCE_OPTIONS = [
   { value: "non-vegetarian", label: "Non-vegetarian" },
   { value: "eggetarian", label: "Eggetarian" },
   { value: "vegan", label: "Vegan" },
+  { value: "jain", label: "Jain (no root veg / onion / garlic)" },
 ];
 
 export const DIET_TYPE_OPTIONS = Object.entries(DIET_TYPE_LABELS).map(

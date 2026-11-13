@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import { conditionLabel } from "@/lib/glycemic";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -15,6 +16,8 @@ import {
 import AssessmentTab from "./AssessmentTab";
 import AnalysisTab from "./AnalysisTab";
 import MenuTab from "./MenuTab";
+import ChartTab from "./chart/ChartTab";
+import PortalTab from "./PortalTab";
 
 export interface LoadedReport {
   id: string;
@@ -30,18 +33,20 @@ export interface LoadedReport {
   updatedAt: string;
 }
 
-type Tab = "assessment" | "analysis" | "menu";
+type Tab = "assessment" | "analysis" | "menu" | "chart" | "portal";
 
 export default function ReportWorkspace({
   initial,
   hasApiKey,
+  initialTab,
 }: {
   initial: LoadedReport;
   hasApiKey: boolean;
+  initialTab?: Tab;
 }) {
   const router = useRouter();
   const [report, setReport] = useState<LoadedReport>(initial);
-  const [tab, setTab] = useState<Tab>("assessment");
+  const [tab, setTab] = useState<Tab>(initialTab ?? "assessment");
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
 
@@ -129,7 +134,9 @@ export default function ReportWorkspace({
   const tabs: { id: Tab; label: string }[] = [
     { id: "assessment", label: "Assessment & Calculations" },
     { id: "analysis", label: "Analysis & Guidelines" },
-    { id: "menu", label: "Menu Plan" },
+    { id: "menu", label: "Exchange Menu" },
+    { id: "chart", label: "Diet Chart" },
+    { id: "portal", label: "Client Portal" },
   ];
 
   return (
@@ -145,7 +152,7 @@ export default function ReportWorkspace({
           </h1>
           <p className="text-sm text-slate-500">
             {report.subject.age} yr · {report.subject.sex} ·{" "}
-            {DIET_TYPE_LABELS[report.subject.dietType as DietType]} ·{" "}
+            {conditionLabel(DIET_TYPE_LABELS[report.subject.dietType as DietType], report.subject.dietType as DietType, report.subject.glycemicStatus)} ·{" "}
             <span className="capitalize">{report.subject.dietPreference}</span>
           </p>
         </div>
@@ -185,12 +192,12 @@ export default function ReportWorkspace({
       </div>
 
       {/* Tabs */}
-      <div className="mb-5 flex gap-1 border-b border-slate-200">
+      <div className="mb-5 flex gap-1 overflow-x-auto border-b border-slate-200">
         {tabs.map((t) => (
           <button
             key={t.id}
             onClick={() => setTab(t.id)}
-            className={`-mb-px border-b-2 px-4 py-2 text-sm font-semibold transition ${
+            className={`-mb-px whitespace-nowrap border-b-2 px-4 py-2 text-sm font-semibold transition ${
               tab === t.id
                 ? "border-brand-600 text-brand-700"
                 : "border-transparent text-slate-500 hover:text-slate-700"
@@ -221,6 +228,9 @@ export default function ReportWorkspace({
           saving={saving}
         />
       )}
+
+      {tab === "chart" && <ChartTab reportId={report.id} subject={report.subject} />}
+      {tab === "portal" && <PortalTab reportId={report.id} clientName={report.subject.clientName} />}
 
       {toast && (
         <div className="fixed bottom-6 right-6 z-30 rounded-lg bg-slate-900 px-4 py-2 text-sm text-white shadow-lg">

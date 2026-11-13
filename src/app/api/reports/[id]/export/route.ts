@@ -1,3 +1,4 @@
+import { glycemicSummary } from "@/lib/glycemic";
 import { NextResponse } from "next/server";
 import ExcelJS from "exceljs";
 import { prisma } from "@/lib/db";
@@ -73,6 +74,7 @@ export async function GET(
     push("Income group", subject.incomeGroup);
     push("Diet preference", subject.dietPreference);
     push("Condition / goal", DIET_TYPE_LABELS[subject.dietType as DietType]);
+    push("Blood sugar status / labs", glycemicSummary(subject) || "Normal / not tested");
     push("Allergies", subject.allergies || "None");
     push("Objective", subject.objective || "—");
     a.addRow([]);

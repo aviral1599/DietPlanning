@@ -15,12 +15,16 @@ export const dynamic = "force-dynamic";
 
 export default async function ReportPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ tab?: string }>;
 }) {
   const coach = await getCurrentCoach();
   if (!coach) redirect("/login");
   const { id } = await params;
+  const { tab } = await searchParams;
+  const initialTab = (["assessment", "analysis", "menu", "chart", "portal"] as const).find((t) => t === tab);
 
   const report = await prisma.report.findUnique({ where: { id } });
   if (!report || report.coachId !== coach.id) notFound();
@@ -46,5 +50,5 @@ export default async function ReportPage({
     updatedAt: report.updatedAt.toISOString(),
   };
 
-  return <ReportWorkspace initial={loaded} hasApiKey={!!coach.anthropicKey} />;
+  return <ReportWorkspace initial={loaded} hasApiKey={!!coach.anthropicKey} initialTab={initialTab} />;
 }

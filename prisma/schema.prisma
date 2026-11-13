@@ -10,54 +10,65 @@ datasource db {
 }
 
 model Coach {
-  id           String   @id @default(cuid())
+  id           String          @id @default(cuid())
   name         String
-  email        String   @unique
+  email        String          @unique
   passwordHash String
-  clinicName   String   @default("Master Mind Body Global")
+  clinicName   String          @default("Master Mind Body Global")
   anthropicKey String? // optional, stored per coach for AI analysis
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
   clients      Client[]
   reports      Report[]
+  charts       DietChart[]
+  customDishes CustomDish[]
+  requests     ChangeRequest[]
 }
 
 model Client {
-  id        String   @id @default(cuid())
-  coachId   String
-  coach     Coach    @relation(fields: [coachId], references: [id], onDelete: Cascade)
-  name      String
-  sex       String
-  dob       String? // optional date of birth
-  phone     String?
-  email     String?
-  notes     String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  reports   Report[]
+  id            String          @id @default(cuid())
+  coachId       String
+  coach         Coach           @relation(fields: [coachId], references: [id], onDelete: Cascade)
+  name          String
+  sex           String
+  dob           String? // optional date of birth
+  phone         String?
+  email         String?         @unique // also the client-portal login
+  notes         String?
+  // Client portal access (managed by the coach)
+  passwordHash  String?
+  portalEnabled Boolean         @default(false)
+  lastLoginAt   DateTime?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  reports       Report[]
+  charts        DietChart[]
+  requests      ChangeRequest[]
 
   @@index([coachId])
 }
 
 model Report {
-  id      String  @id @default(cuid())
-  coachId String
-  coach   Coach   @relation(fields: [coachId], references: [id], onDelete: Cascade)
-  client  Client? @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  id       String  @id @default(cuid())
+  coachId  String
+  coach    Coach   @relation(fields: [coachId], references: [id], onDelete: Cascade)
+  client   Client? @relation(fields: [clientId], references: [id], onDelete: SetNull)
   clientId String?
 
   // Snapshot of subject info (kept on the report so history is immutable)
-  clientName    String
-  age           Int
-  sex           String
-  heightCm      Float
-  weightKg      Float
+  clientName     String
+  age            Int
+  sex            String
+  heightCm       Float
+  weightKg       Float
   activityLevel  String
   incomeGroup    String
   allergies      String @default("")
   dietType       String // therapeutic goal / condition
   dietPreference String @default("vegetarian") // vegetarian | non-vegetarian | eggetarian | vegan
   objective      String @default("")
+  glycemicStatus String @default("none") // none | insulin-resistance | prediabetes
+  labs           String @default("{}") // GlycemicLabs JSON (HbA1c, FBS, PPBS, fasting insulin)
 
   // Configurable calc settings (JSON) + computed results (JSON)
   settings   String @default("{}") // NutritionSettings
@@ -66,25 +77,97 @@ model Report {
   analysis   String @default("{}") // goals, dos/donts, include/exclude, aiNarrative
   aiProvider String @default("builtin") // builtin | claude
 
-  status    String   @default("draft") // draft | final
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  status    String      @default("draft") // draft | final
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  charts    DietChart[]
 
   @@index([coachId])
   @@index([clientId])
 }
 
-model FoodExchange {
-  id        String  @id @default(cuid())
-  group     String // CEREALS, PULSES, MILK, MEAT, VEG_A, VEG_B, VEG_C, FRUITS, SUGARS, FATS, NUTS
-  subgroup  String  @default("")
-  name      String
-  amountG   Float // grams for one exchange
-  protein   Float
-  fat       Float
-  cho       Float
-  energy    Float
+// Weekly / monthly meal plan built from the food bank.
+model DietChart {
+  id       String  @id @default(cuid())
+  coachId  String
+  coach    Coach   @relation(fields: [coachId], references: [id], onDelete: Cascade)
+  reportId String
+  report   Report  @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  clientId String?
+  client   Client? @relation(fields: [clientId], references: [id], onDelete: SetNull)
+
+  title     String  @default("Diet Chart")
+  startDate String
+  days      String  @default("[]") // ChartDay[]
+  prefs     String  @default("{}") // ChartPrefs
+  targets   String  @default("{}") // ChartTargets
+  mealTimes String  @default("{}") // Record<MealTime, "HH:MM">
+  notes     String  @default("") // message from the nutritionist to the client
+  shared    Boolean @default(false) // visible in the client portal
+  version   Int     @default(1)
+  updatedBy String  @default("coach") // coach | client-request
+
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+  requests  ChangeRequest[]
+
+  @@index([coachId])
+  @@index([reportId])
+  @@index([clientId])
+}
+
+// A client's requested edit to their chart, pending nutritionist approval.
+model ChangeRequest {
+  id       String    @id @default(cuid())
+  chartId  String
+  chart    DietChart @relation(fields: [chartId], references: [id], onDelete: Cascade)
+  clientId String
+  client   Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  coachId  String
+  coach    Coach     @relation(fields: [coachId], references: [id], onDelete: Cascade)
+
+  day       Int
+  meal      String
+  action    String // swap | remove | add | portion
+  scope     String  @default("this") // this | all
+  targetUid String?
+  fromItem  String? // JSON PlanItem snapshot
+  toItem    String? // JSON PlanItem
   note      String  @default("")
+  status    String  @default("pending") // pending | approved | rejected | cancelled
+  coachNote String  @default("")
+
+  createdAt  DateTime  @default(now())
+  resolvedAt DateTime?
+
+  @@index([coachId, status])
+  @@index([chartId])
+  @@index([clientId])
+}
+
+// Coach-created dishes that extend the built-in food bank.
+model CustomDish {
+  id        String   @id @default(cuid())
+  coachId   String
+  coach     Coach    @relation(fields: [coachId], references: [id], onDelete: Cascade)
+  data      String // CustomDishData JSON
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([coachId])
+}
+
+model FoodExchange {
+  id       String @id @default(cuid())
+  group    String // CEREALS, PULSES, MILK, MEAT, VEG_A, VEG_B, VEG_C, FRUITS, SUGARS, FATS, NUTS
+  subgroup String @default("")
+  name     String
+  amountG  Float // grams for one exchange
+  protein  Float
+  fat      Float
+  cho      Float
+  energy   Float
+  note     String @default("")
 
   @@index([group])
 }

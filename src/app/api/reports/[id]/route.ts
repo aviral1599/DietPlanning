@@ -59,6 +59,8 @@ export async function PUT(
       dietType: body.dietType ?? existing.dietType,
       dietPreference: body.dietPreference ?? existing.dietPreference,
       objective: body.objective ?? existing.objective,
+      glycemicStatus: body.glycemicStatus ?? existing.glycemicStatus,
+      labs: body.labs ?? existing.labs,
     });
 
     const prevSettings = safeJsonParse<Partial<NutritionSettings>>(
@@ -121,6 +123,8 @@ export async function PUT(
         dietType: subject.dietType,
         dietPreference: subject.dietPreference,
         objective: subject.objective,
+        glycemicStatus: subject.glycemicStatus,
+        labs: JSON.stringify(subject.labs),
         status: body.status ?? existing.status,
         ...dataToSave,
       },

@@ -12,6 +12,7 @@ import {
   SubjectInfo,
 } from "./types";
 import { round } from "./nutrition";
+import { isGlycemicConcern } from "./glycemic";
 
 const half = (n: number) => Math.max(0, Math.round(n * 2) / 2);
 
@@ -34,7 +35,7 @@ export function allocateExchanges(
   const U = EXCHANGE_UNITS;
 
   const isDiabetic =
-    diet === "diabetes" || diet === "pcos" || diet === "weight-loss";
+    diet === "weight-loss" || isGlycemicConcern(diet, subject.glycemicStatus);
 
   const alloc: Record<FoodGroup, number> = {
     CEREALS: 0,
@@ -75,7 +76,7 @@ export function allocateExchanges(
 
   // 6. Pulses — protein workhorse. Higher for veg/vegan to compensate.
   const basePulses =
-    pref === "vegan" ? 3 : pref === "vegetarian" ? 2 : 1.5;
+    pref === "vegan" ? 3 : pref === "vegetarian" || pref === "jain" ? 2 : 1.5;
   alloc.PULSES = basePulses;
 
   // 7. Sugars — small allowance; none for diabetic/weight-loss/PCOS.

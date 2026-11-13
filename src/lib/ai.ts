@@ -1,3 +1,4 @@
+import { glycemicSummary } from "./glycemic";
 import Anthropic from "@anthropic-ai/sdk";
 import { Analysis, CalcResults, MenuPlan, SubjectInfo } from "./types";
 import { DIET_TYPE_LABELS } from "./types";
@@ -33,6 +34,7 @@ CLIENT
 - Activity: ${subject.activityLevel}
 - Diet preference: ${subject.dietPreference}
 - Condition/goal: ${DIET_TYPE_LABELS[subject.dietType]}
+- Blood sugar (insulin resistance / prediabetes, labs): ${glycemicSummary(subject) || "normal / not tested"}
 - Income group: ${subject.incomeGroup}
 - Allergies: ${subject.allergies || "none"}
 - Objective / case study: ${subject.objective || "not specified"}

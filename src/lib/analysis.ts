@@ -1,4 +1,5 @@
 import { Analysis, CalcResults, DietType, SubjectInfo } from "./types";
+import { interpretLabs } from "./glycemic";
 
 // ---------------------------------------------------------------------------
 // Built-in, rule-based analysis engine. Produces dietary goals, do's & don'ts,
@@ -91,6 +92,44 @@ const CONDITION_GUIDANCE: Record<DietType, Guidance> = {
     ],
     include: ["Whole grains (jowar, bajra, oats)", "Green leafy & non-starchy veg", "Dals, sprouts, soya", "Low-GI fruits (guava, apple, papaya)", "Methi, cinnamon, flax"],
     exclude: ["Sugar & sweets", "Fruit juice & honey", "White rice, maida, potato", "Mango, banana, grapes, chikoo", "Fried & processed foods"],
+  },
+  "insulin-resistance": {
+    goals: [
+      "Improve insulin sensitivity and keep blood glucose in the normal range (HbA1c < 5.7 %, fasting glucose < 100 mg/dL).",
+      "If overweight, lose 5–7 % of body weight over ~6 months — the best-proven way to stop progression to diabetes.",
+      "Reduce abdominal fat (waist < 90 cm men / < 80 cm women, Asian-Indian cut-offs).",
+    ],
+    dos: [
+      "Use the plate method: ½ non-starchy vegetables, ¼ protein (dal, paneer, egg, fish), ¼ whole grain or millet.",
+      "Eat vegetables/salad and protein first and the roti/rice last — this food order lowers the post-meal sugar rise.",
+      "Choose low-GI carbohydrates: millets (jowar, bajra, ragi), whole dals, oats, barley; keep rice portions small.",
+      "Never eat a carbohydrate alone — pair fruit, roti or rice with protein, fibre or a few nuts.",
+      "Aim for 25–40 g fibre a day; add soluble fibre (soaked methi seeds, oats, flax, chia).",
+      "Walk 10–15 min after main meals; 150 min/week brisk activity plus 2–3 strength sessions.",
+      "Keep regular meal times, finish dinner 2–3 h before bed and sleep 7–8 h.",
+    ],
+    donts: [
+      "Avoid sugar, jaggery, honey, sweets and sweetened tea/coffee.",
+      "Avoid fruit juices, soft drinks, packaged 'health' drinks and flavoured yoghurt.",
+      "Limit maida, white bread, biscuits, bakery items and instant noodles.",
+      "Avoid deep-fried snacks, vanaspati / trans fats and processed meats.",
+      "Don't eat large carbohydrate-only meals (e.g. a big plate of rice or poha alone).",
+    ],
+    include: [
+      "Millets (jowar, bajra, ragi, kodo) & barley",
+      "Whole dals, sprouts, chana, rajma",
+      "Paneer, curd, eggs, fish, lean chicken",
+      "Non-starchy vegetables & leafy greens",
+      "Low-GI fruits — guava, apple, pear, orange, jamun, berries",
+      "Methi seeds, flax, chia, almonds, walnuts",
+    ],
+    exclude: [
+      "Sugar, jaggery, honey & sweets",
+      "Fruit juice & sweetened drinks",
+      "Maida, white bread & bakery",
+      "Large portions of white rice / potato",
+      "Fried snacks & vanaspati",
+    ],
   },
   pcos: {
     goals: [
@@ -233,6 +272,50 @@ export function buildBuiltinAnalysis(
   const donts = [...g.donts];
   const include = [...g.include];
   const exclude = [...g.exclude];
+
+  // Insulin resistance / prediabetes on top of another condition.
+  const gs = subject.glycemicStatus ?? "none";
+  const glycemicOverlay = gs !== "none" && subject.dietType !== "insulin-resistance" && subject.dietType !== "diabetes";
+  if (gs !== "none" && subject.dietType !== "diabetes") {
+    goals.unshift(
+      gs === "prediabetes"
+        ? "Prediabetes: bring HbA1c below 5.7 % and fasting glucose below 100 mg/dL through diet, activity and (if overweight) 5–7 % weight loss."
+        : "Insulin resistance: improve insulin sensitivity with low-GI, protein- and fibre-rich meals and regular activity."
+    );
+  }
+  if (glycemicOverlay) {
+    const ir = CONDITION_GUIDANCE["insulin-resistance"];
+    // Skip an item when the list already covers the same topic (e.g. two "avoid sugar" lines).
+    const TOPICS = [/sugar|sweet/i, /juice/i, /maida|refined|bakery/i, /fried/i, /millet/i, /low-gi/i];
+    const covered = (list: string[], item: string) => {
+      if (list.includes(item)) return true;
+      const topics = TOPICS.filter((t) => t.test(item));
+      return topics.length > 0 && topics.every((t) => list.some((x) => t.test(x)));
+    };
+    const add = (list: string[], items: string[]) => items.forEach((i) => !covered(list, i) && list.push(i));
+    add(dos, [ir.dos[0], ir.dos[1], ir.dos[3], ir.dos[5]]);
+    add(donts, [ir.donts[0], ir.donts[1], ir.donts[2]]);
+    add(include, [ir.include[0], ir.include[4], ir.include[5]]);
+    add(exclude, [ir.exclude[0], ir.exclude[1], ir.exclude[2]]);
+  }
+  if (gs === "prediabetes") dos.push("Re-check HbA1c and fasting glucose every 6 months (at least once a year).");
+  else if (gs === "insulin-resistance") dos.push("Re-check fasting glucose, fasting insulin (HOMA-IR) and HbA1c in 3–6 months.");
+
+  // Lab markers.
+  const labs = interpretLabs(subject.labs ?? {});
+  for (const f of labs.findings) {
+    if (f.tone === "ok") continue;
+    goals.push(
+      f.key === "homaIr"
+        ? `HOMA-IR ${f.value} — ${f.band}; aim for < 2.0.`
+        : f.key === "hba1c"
+          ? `HbA1c ${f.value} — ${f.band}; target < 5.7 %.`
+          : `${f.label} ${f.value} — ${f.band}.`
+    );
+  }
+  if (labs.suggested === "diabetes" && subject.dietType !== "diabetes") {
+    goals.unshift("Lab values are in the diabetes range — refer to a physician to confirm the diagnosis before continuing.");
+  }
 
   // BMI-driven additions.
   if (results.bmi >= 25) {

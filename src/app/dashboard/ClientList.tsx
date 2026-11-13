@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { conditionLabel } from "@/lib/glycemic";
+import type { GlycemicStatus } from "@/lib/types";
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { DIET_TYPE_LABELS } from "@/lib/types";
@@ -12,11 +14,16 @@ export interface ReportRow {
   age: number;
   sex: string;
   dietType: string;
+  glycemicStatus?: string;
   dietPreference: string;
   status: string;
   energy: number;
   bmi: number;
   updatedAt: string;
+}
+
+function label(r: { dietType: string; glycemicStatus?: string }) {
+  return conditionLabel(DIET_TYPE_LABELS[r.dietType as DietType] ?? r.dietType, r.dietType as DietType, r.glycemicStatus as GlycemicStatus);
 }
 
 export default function ClientList({ rows }: { rows: ReportRow[] }) {
@@ -30,7 +37,7 @@ export default function ClientList({ rows }: { rows: ReportRow[] }) {
     return rows.filter(
       (r) =>
         r.clientName.toLowerCase().includes(s) ||
-        (DIET_TYPE_LABELS[r.dietType as DietType] ?? r.dietType)
+        label(r)
           .toLowerCase()
           .includes(s)
     );
@@ -86,7 +93,7 @@ export default function ClientList({ rows }: { rows: ReportRow[] }) {
                     {r.age} / {r.sex}
                   </td>
                   <td className="td text-slate-600">
-                    {DIET_TYPE_LABELS[r.dietType as DietType] ?? r.dietType}
+                    {label(r)}
                   </td>
                   <td className="td capitalize text-slate-600">
                     {r.dietPreference}
@@ -105,7 +112,7 @@ export default function ClientList({ rows }: { rows: ReportRow[] }) {
                     </span>
                   </td>
                   <td className="td text-slate-500">
-                    {new Date(r.updatedAt).toLocaleDateString()}
+                    {new Date(r.updatedAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric", timeZone: "Asia/Kolkata" })}
                   </td>
                   <td className="td text-right">
                     <div className="flex justify-end gap-2">

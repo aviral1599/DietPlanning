@@ -98,6 +98,20 @@ own coach login — their clients are private to their account.
 
 ---
 
+## Upgrading an existing deployment (database changes)
+
+Some updates add new database tables (e.g. the Food Bank / Diet Chart / Client Portal
+release adds `DietChart`, `ChangeRequest`, `CustomDish` and portal fields on `Client`).
+These changes are **additive** — no existing data is modified — but the database must be
+updated **before** the new code goes live, otherwise the deployed app will error:
+
+```bash
+# 1. with .env pointing at your Neon database:
+npm run db:push
+# 2. then deploy the code:
+git push
+```
+
 ## Updating the app later
 
 Any time you change the code:

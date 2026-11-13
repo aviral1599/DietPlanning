@@ -32,6 +32,7 @@ const PROTEIN_PER_KG: Record<DietType, number> = {
   "weight-loss": 1.2,
   "weight-gain": 1.5,
   diabetes: 1.0,
+  "insulin-resistance": 1.1,
   pcos: 1.2,
   hypothyroid: 1.0,
   hypertension: 1.0,
@@ -47,6 +48,7 @@ const FAT_PERCENT: Record<DietType, number> = {
   "weight-loss": 0.25,
   "weight-gain": 0.28,
   diabetes: 0.25,
+  "insulin-resistance": 0.27, // a little more (mainly MUFA) fat in place of refined carbohydrate
   pcos: 0.25,
   hypothyroid: 0.25,
   hypertension: 0.2,
@@ -64,12 +66,18 @@ const GOAL_ADJUSTMENT: Partial<Record<DietType, number>> = {
 };
 
 export function defaultSettings(subject: SubjectInfo): NutritionSettings {
+  // Insulin resistance / prediabetes on top of another goal: slightly more
+  // protein (satiety, blunts post-meal glucose) unless protein is restricted.
+  let proteinPerKg = PROTEIN_PER_KG[subject.dietType] ?? 1.0;
+  if (subject.glycemicStatus && subject.glycemicStatus !== "none" && subject.dietType !== "renal") {
+    proteinPerKg = Math.max(proteinPerKg, 1.1);
+  }
   return {
     bmrMethod: "harris-benedict",
     ibwMethod: "broca",
     activityFactor: ACTIVITY_PA_FACTOR[subject.activityLevel],
     sdaFactor: 0.1,
-    proteinPerKg: PROTEIN_PER_KG[subject.dietType] ?? 1.0,
+    proteinPerKg,
     proteinBasis: "ideal",
     fatPercent: FAT_PERCENT[subject.dietType] ?? 0.25,
     energyOverride: null,
@@ -218,7 +226,13 @@ export function computeAssessment(
   const sda = settings.sdaFactor * (bmr + pa);
   const tee = bmr + pa + sda;
 
-  const goalAdjustment = GOAL_ADJUSTMENT[subject.dietType] ?? 0;
+  // Insulin resistance / prediabetes: a modest deficit only when overweight
+  // (BMI ≥ 23, Asian cut-off) — 5–7 % weight loss is the best-proven way to
+  // prevent progression to diabetes.
+  const goalAdjustment =
+    subject.dietType === "insulin-resistance"
+      ? bmiVal >= 23 ? -300 : 0
+      : GOAL_ADJUSTMENT[subject.dietType] ?? 0;
   const energy =
     settings.energyOverride != null && settings.energyOverride > 0
       ? settings.energyOverride

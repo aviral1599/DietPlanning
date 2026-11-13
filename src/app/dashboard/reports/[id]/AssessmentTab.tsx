@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { NutritionSettings, SubjectInfo } from "@/lib/types";
+import { GLYCEMIC_STATUS_LABELS, NutritionSettings, SubjectInfo, type DietType } from "@/lib/types";
+import GlycemicFields from "@/components/GlycemicFields";
+import { hasLabs, interpretLabs } from "@/lib/glycemic";
 import {
   ACTIVITY_OPTIONS,
   BMR_METHOD_OPTIONS,
@@ -61,8 +63,40 @@ export default function AssessmentTab({
   const updCfg = (k: keyof NutritionSettings, v: number | string | null) =>
     setCfg((p) => ({ ...p, [k]: v }));
 
+  const gStatus = subject.glycemicStatus ?? "none";
+  const labInterp = interpretLabs(subject.labs ?? {});
+  const showGlycemic = (gStatus !== "none" && subject.dietType !== "diabetes") || hasLabs(subject.labs);
+
   return (
     <div className="space-y-6">
+      {showGlycemic && (
+        <div className="card flex flex-wrap items-center gap-x-4 gap-y-2 border-amber-200 bg-amber-50/50 p-4">
+          <div>
+            <div className="text-xs font-semibold uppercase tracking-wide text-amber-700">Blood sugar</div>
+            <div className="text-sm font-semibold text-slate-900">
+              {subject.dietType === "diabetes" ? "Diabetes" : GLYCEMIC_STATUS_LABELS[gStatus]}
+            </div>
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            {labInterp.findings.map((f) => (
+              <span
+                key={f.key}
+                className={`rounded-full border px-2.5 py-0.5 text-[11px] font-medium ${
+                  f.tone === "ok" ? "border-emerald-200 bg-emerald-50 text-emerald-800" : f.tone === "warn" ? "border-amber-200 bg-amber-50 text-amber-800" : "border-red-200 bg-red-50 text-red-700"
+                }`}
+              >
+                {f.label} {f.value} · {f.band}
+              </span>
+            ))}
+          </div>
+          {gStatus !== "none" && subject.dietType !== "diabetes" && (
+            <p className="w-full text-xs text-slate-600">
+              Diet charts for this client favour insulin-friendly, low-GI dishes, pair every carbohydrate with protein or fibre, and leave out sweets and juices.
+            </p>
+          )}
+        </div>
+      )}
+
       {/* Key stats */}
       <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
         <Stat label="IBW" value={`${results.ibw} kg`} sub={results.ibwMethodLabel} />
@@ -220,6 +254,16 @@ export default function AssessmentTab({
               <L label="Condition / goal">
                 <Select value={s.dietType} opts={DIET_TYPE_OPTIONS} onChange={(v) => upd("dietType", v)} />
               </L>
+              <div className="sm:col-span-3">
+                <GlycemicFields
+                  dietType={s.dietType}
+                  status={s.glycemicStatus ?? "none"}
+                  labs={s.labs ?? {}}
+                  onStatus={(v) => setS((p) => ({ ...p, glycemicStatus: v }))}
+                  onLabs={(v) => setS((p) => ({ ...p, labs: v }))}
+                  onSetDiabetes={() => setS((p) => ({ ...p, dietType: "diabetes" as DietType }))}
+                />
+              </div>
               <L label="Allergies">
                 <input className="input" value={s.allergies} onChange={(e) => upd("allergies", e.target.value)} />
               </L>

@@ -1,3 +1,4 @@
+import { glycemicSummary } from "../glycemic";
 import React from "react";
 import {
   Document,
@@ -188,6 +189,7 @@ export function ReportPdf(props: ReportPdfProps) {
             label="Condition / goal"
             value={DIET_TYPE_LABELS[subject.dietType as DietType]}
           />
+          {glycemicSummary(subject) && <InfoRow label="Blood sugar" value={glycemicSummary(subject)} />}
           <InfoRow label="Food allergies" value={subject.allergies || "None"} />
         </View>
 

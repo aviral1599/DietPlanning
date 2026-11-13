@@ -16,6 +16,7 @@ export type DietType =
   | "weight-loss"
   | "weight-gain"
   | "diabetes"
+  | "insulin-resistance"
   | "pcos"
   | "hypothyroid"
   | "hypertension"
@@ -30,13 +31,35 @@ export type DietPreference =
   | "vegetarian"
   | "non-vegetarian"
   | "eggetarian"
-  | "vegan";
+  | "vegan"
+  | "jain";
+
+/**
+ * Blood-sugar (glycaemic) status. Recorded alongside the main condition so a
+ * client can be, e.g., PCOS + insulin resistant, or weight-loss + prediabetic.
+ */
+export type GlycemicStatus = "none" | "insulin-resistance" | "prediabetes";
+
+export const GLYCEMIC_STATUS_LABELS: Record<GlycemicStatus, string> = {
+  none: "Normal / not tested",
+  "insulin-resistance": "Insulin resistance",
+  prediabetes: "Prediabetes",
+};
+
+/** Optional lab markers (all optional). */
+export interface GlycemicLabs {
+  hba1c?: number | null; // %
+  fastingGlucose?: number | null; // mg/dL
+  postprandialGlucose?: number | null; // mg/dL, 2-h
+  fastingInsulin?: number | null; // µIU/mL
+}
 
 export const DIET_TYPE_LABELS: Record<DietType, string> = {
   general: "General / Balanced",
   "weight-loss": "Weight Loss",
   "weight-gain": "Weight Gain",
   diabetes: "Diabetes (Diabetic)",
+  "insulin-resistance": "Insulin Resistance / Prediabetes",
   pcos: "PCOS",
   hypothyroid: "Hypothyroidism",
   hypertension: "Hypertension (DASH)",
@@ -132,6 +155,9 @@ export interface SubjectInfo {
   dietType: DietType;
   dietPreference: DietPreference;
   objective: string;
+  /** Insulin resistance / prediabetes flag (applies on top of dietType). */
+  glycemicStatus: GlycemicStatus;
+  labs: GlycemicLabs;
 }
 
 export interface NutritionSettings {

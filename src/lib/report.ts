@@ -1,6 +1,7 @@
 import { computeAssessment, defaultSettings } from "./nutrition";
 import { buildMenuPlan } from "./planner";
 import { buildBuiltinAnalysis } from "./analysis";
+import { normalizeLabs, normalizeStatus } from "./glycemic";
 import {
   Analysis,
   CalcResults,
@@ -42,6 +43,12 @@ export function buildFullReport(
 
 /** Coerce raw form/db values into a typed SubjectInfo. */
 export function toSubjectInfo(raw: Record<string, unknown>): SubjectInfo {
+  const dietType = (raw.dietType as SubjectInfo["dietType"]) ?? "general";
+  let glycemicStatus = normalizeStatus(raw.glycemicStatus);
+  // "Insulin resistance / prediabetes" as the main condition implies the flag;
+  // diabetes supersedes it.
+  if (dietType === "insulin-resistance" && glycemicStatus === "none") glycemicStatus = "insulin-resistance";
+  if (dietType === "diabetes") glycemicStatus = "none";
   return {
     clientName: String(raw.clientName ?? "").trim(),
     age: Number(raw.age ?? 0),
@@ -52,9 +59,11 @@ export function toSubjectInfo(raw: Record<string, unknown>): SubjectInfo {
       (raw.activityLevel as SubjectInfo["activityLevel"]) ?? "sedentary",
     incomeGroup: (raw.incomeGroup as SubjectInfo["incomeGroup"]) ?? "middle",
     allergies: String(raw.allergies ?? ""),
-    dietType: (raw.dietType as SubjectInfo["dietType"]) ?? "general",
+    dietType,
     dietPreference:
       (raw.dietPreference as SubjectInfo["dietPreference"]) ?? "vegetarian",
     objective: String(raw.objective ?? ""),
+    glycemicStatus,
+    labs: normalizeLabs(raw.labs),
   };
 }

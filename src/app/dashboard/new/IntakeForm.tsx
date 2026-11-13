@@ -9,6 +9,8 @@ import {
   INCOME_OPTIONS,
   SEX_OPTIONS,
 } from "@/lib/ui-options";
+import GlycemicFields from "@/components/GlycemicFields";
+import type { DietType, GlycemicLabs, GlycemicStatus } from "@/lib/types";
 
 function Field({
   label,
@@ -33,6 +35,14 @@ export default function IntakeForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [heightCm, setHeightCm] = useState("");
+  const [dietType, setDietType] = useState<DietType>("general");
+  const [glycemicStatus, setGlycemicStatus] = useState<GlycemicStatus>("none");
+  const [labs, setLabs] = useState<GlycemicLabs>({});
+
+  function changeDietType(v: DietType) {
+    setDietType(v);
+    if (v === "insulin-resistance" && glycemicStatus === "none") setGlycemicStatus("insulin-resistance");
+  }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -48,9 +58,11 @@ export default function IntakeForm() {
       activityLevel: fd.get("activityLevel"),
       incomeGroup: fd.get("incomeGroup"),
       allergies: fd.get("allergies"),
-      dietType: fd.get("dietType"),
+      dietType,
       dietPreference: fd.get("dietPreference"),
       objective: fd.get("objective"),
+      glycemicStatus: dietType === "diabetes" ? "none" : glycemicStatus,
+      labs,
     };
     try {
       const res = await fetch("/api/reports", {
@@ -139,7 +151,7 @@ export default function IntakeForm() {
             </select>
           </Field>
           <Field label="Condition / goal">
-            <select name="dietType" className="input" defaultValue="general">
+            <select name="dietType" className="input" value={dietType} onChange={(e) => changeDietType(e.target.value as DietType)}>
               {DIET_TYPE_OPTIONS.map((o) => (
                 <option key={o.value} value={o.value}>
                   {o.label}
@@ -147,6 +159,17 @@ export default function IntakeForm() {
               ))}
             </select>
           </Field>
+        </div>
+
+        <div className="mt-4">
+          <GlycemicFields
+            dietType={dietType}
+            status={glycemicStatus}
+            labs={labs}
+            onStatus={setGlycemicStatus}
+            onLabs={setLabs}
+            onSetDiabetes={() => changeDietType("diabetes")}
+          />
         </div>
 
         <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
