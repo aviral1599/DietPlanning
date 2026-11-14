@@ -263,6 +263,8 @@ export interface DishDef {
   staplePref?: "rice" | "roti";
   method?: string;
   prepMins?: number;
+  /** Per-unit values that replace the computed ones (e.g. fibre lost when a juice is strained). */
+  manualPerUnit?: Partial<Nutrients> | null;
 }
 
 export type DietFlag = "veg" | "egg" | "nonveg" | "vegan" | "jain";

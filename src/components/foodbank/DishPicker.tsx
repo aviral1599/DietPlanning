@@ -67,16 +67,19 @@ export default function DishPicker({
   const [open, setOpen] = useState<string | null>(null);
   const [limit, setLimit] = useState(40);
 
+  // Teas, coffees and other drinks can be added to any meal by hand.
+  const suits = (d: Dish) => !meal || !mealOnly || d.slots.includes(meal) || d.role === "beverage";
+
   const availableRoles = useMemo(() => {
     const s = new Set<DishRole>();
-    dishes.forEach((d) => (!meal || !mealOnly || d.slots.includes(meal)) && s.add(d.role));
+    dishes.forEach((d) => suits(d) && s.add(d.role));
     return Array.from(s);
   }, [dishes, meal, mealOnly]);
 
   const results = useMemo(() => {
     const terms = q.toLowerCase().split(/\s+/).filter(Boolean);
     const list = dishes.filter((d) => {
-      if (meal && mealOnly && !d.slots.includes(meal)) return false;
+      if (!suits(d)) return false;
       if (roleF.length && !roleF.includes(d.role) && !(d.fills ?? []).some((r) => roleF.includes(r))) return false;
       if (cuisineF.length && !cuisineF.includes(d.cuisine)) return false;
       for (const t of tagF) {

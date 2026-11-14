@@ -45,6 +45,11 @@ export const DISHES: DishDef[] = [
   { id: "methi-water", name: "Soaked Methi Seed Water", local: "Methi dana pani", cuisine: "pan-indian", role: "beverage", slots: EM, unit: glass(),
     ingredients: { water: 200, fenugreek_seeds: 3 }, tags: ["traditional", "light"], freq: "regular", goodFor: ["diabetes", "pcos"],
     method: "Soak 1 tsp fenugreek seeds overnight; drink the water (and chew the seeds) in the morning." },
+  { id: "ash-gourd-juice", name: "Ash Gourd Juice", local: "Petha juice", cuisine: "pan-indian", role: "beverage", slots: EM, unit: glass(),
+    ingredients: { ash_gourd: 200, water: 50 }, tags: ["traditional", "no-cook", "light"], gi: "low", freq: "regular", avoidFor: ["renal"],
+    // Strained: most of the vegetable's fibre (≈6.7 g in 200 g) stays in the pulp.
+    manualPerUnit: { fibre: 0.5 },
+    method: "Peel and deseed about 200 g ash gourd, blend with a little water, strain and drink fresh on an empty stomach." },
   { id: "amla-shot", name: "Amla Shot", cuisine: "pan-indian", role: "beverage", slots: EM, unit: cup("≈100 ml"),
     ingredients: { amla: 30, water: 100 }, tags: ["traditional", "no-cook"], freq: "regular", goodFor: ["diabetes", "pcos", "pregnancy"],
     method: "Blend 1–2 fresh amla with water, strain and drink immediately." },

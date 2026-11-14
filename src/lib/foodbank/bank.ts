@@ -126,9 +126,10 @@ export function computeDish(
     if (ADDED_SUGARS.has(key)) addedSugar += grams;
   }
 
-  if (opts?.manualPerUnit) {
+  const manual = opts?.manualPerUnit ?? def.manualPerUnit;
+  if (manual) {
     for (const k of NUTRIENT_KEYS) {
-      const v = opts.manualPerUnit[k];
+      const v = manual[k];
       if (typeof v === "number" && !Number.isNaN(v)) perUnit[k] = v;
     }
   }
@@ -327,6 +328,7 @@ export function dishToData(d: Dish): CustomDishData {
     staplePref: d.staplePref,
     method: d.method,
     prepMins: d.prepMins,
+    manualPerUnit: d.manualPerUnit,
   };
 }
 
