@@ -3,6 +3,7 @@ import React from "react";
 import { Document, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
 import { formatPortion } from "../foodbank/bank";
 import { dayTotals, groceryList, type ChartDay, type ChartTargets } from "../foodbank/engine";
+import { eventLine } from "../foodbank/schedule";
 import type { Dish } from "../foodbank/types";
 import { DIET_TYPE_LABELS, MEAL_TIMES, MEAL_TIME_LABELS, type MealTime, type SubjectInfo } from "../types";
 
@@ -97,6 +98,7 @@ export function ChartPdf({ title, clinicName, coachName, subject, days, targets,
                   </View>
                   {week.map((d) => (
                     <View key={d.day} style={[s.td, { width: colW }]}>
+                      {d.times?.[m] && (d.meals[m] ?? []).length > 0 && <Text style={[s.portion, { color: BRAND }]}>at {d.times[m]}</Text>}
                       {(d.meals[m] ?? []).map((it) => {
                         const dish = index[it.dishId];
                         if (!dish) return null;
@@ -118,6 +120,20 @@ export function ChartPdf({ title, clinicName, coachName, subject, days, targets,
                   ))}
                 </View>
               ))}
+              {week.some((d) => d.events?.length) && (
+                <View style={s.row} wrap={false}>
+                  <View style={[s.td, { width: 78 }]}>
+                    <Text style={{ fontFamily: "Helvetica-Bold" }}>Exercise and supplements</Text>
+                  </View>
+                  {week.map((d) => (
+                    <View key={d.day} style={[s.td, { width: colW }]}>
+                      {(d.events ?? []).map((e) => (
+                        <Text key={e.uid} style={s.item}>{pdfSafe(eventLine(e))}</Text>
+                      ))}
+                    </View>
+                  ))}
+                </View>
+              )}
               <View style={s.row} wrap={false}>
                 <Text style={[s.th, { width: 78 }]}>Day total</Text>
                 {week.map((d) => {

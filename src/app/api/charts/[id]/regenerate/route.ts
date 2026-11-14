@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { guard, jsonError, safeJsonParse } from "@/lib/api";
 import { generateChart, regenerateDay, type ChartDay, type ChartPrefs } from "@/lib/foodbank/engine";
+import { carryOverSchedule } from "@/lib/foodbank/schedule";
 import { chartPool, loadCoachFood, ownedChart, reportContext, targetsFor, toChartDTO } from "@/lib/foodbank/server";
 
 type Params = { params: Promise<{ id: string }> };
@@ -40,6 +41,8 @@ export async function POST(req: Request, { params }: Params) {
     } else {
       days = generateChart(profile, prefs, targets, pool, prefs.startDate === oldPrefs.startDate ? current : undefined);
     }
+    // Meals are rebuilt; exercise, supplements, notes and per-day times stay.
+    days = carryOverSchedule(current, days);
 
     const updated = await prisma.dietChart.update({
       where: { id },

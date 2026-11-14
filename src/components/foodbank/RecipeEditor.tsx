@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useMemo, useState } from "react";
 import { computeDish, dishToData, INGREDIENT_MAP } from "@/lib/foodbank/bank";
+import { cookedNote } from "@/lib/foodbank/cooked";
 import {
   ALLERGEN_LABELS,
   GROCERY_CATEGORY,
@@ -69,7 +70,10 @@ export default function IngredientsSection({
   return (
     <div>
       <div className="mb-1 flex items-center justify-between gap-2">
-        <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">Ingredients (raw weight)</div>
+        <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+          Ingredients (raw weight)
+          {entries.some(([k]) => cookedNote(k, 1)) && <span className="ml-1 font-normal normal-case text-slate-400">· cooked weight shown for pulses & grains</span>}
+        </div>
         {actions && (
           <button type="button" className="text-xs font-semibold text-brand-700 hover:underline" onClick={() => setEditing(true)}>
             ✎ Edit ingredients
@@ -86,6 +90,7 @@ export default function IngredientsSection({
                   <td className="py-1 pr-2 text-slate-700">{ing?.name ?? k}</td>
                   <td className="whitespace-nowrap py-1 pr-2 text-right tabular-nums text-slate-600">
                     {fmt(g * units)} {ing?.liquid ? "ml" : "g"}
+                    {cookedNote(k, g * units) && <div className="text-[10px] font-normal text-slate-400">{cookedNote(k, g * units)}</div>}
                   </td>
                   {showSources && <td className="hidden py-1 text-right text-[10px] text-slate-400 sm:table-cell">{ing?.source}</td>}
                 </tr>
@@ -192,7 +197,12 @@ function RecipeEditor({
             const ing = INGREDIENT_MAP[r.key];
             return (
               <tr key={r.key} className="border-b border-slate-100">
-                <td className="py-1 pr-2 text-slate-700">{ing?.name ?? r.key}</td>
+                <td className="py-1 pr-2 text-slate-700">
+                  {ing?.name ?? r.key}
+                  {cookedNote(r.key, Number(r.qty)) && (
+                    <div className="text-[10px] text-slate-400">raw weight · {cookedNote(r.key, Number(r.qty))}</div>
+                  )}
+                </td>
                 <td className="w-28 py-1 pr-1">
                   <div className="flex items-center gap-1">
                     <input
