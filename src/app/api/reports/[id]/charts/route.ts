@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { guard, jsonError } from "@/lib/api";
 import { generateChart, MEAL_TIME_DEFAULTS, type ChartPrefs } from "@/lib/foodbank/engine";
-import { loadDishPool, newPrefsFor, reportContext, targetsFor, toChartDTO } from "@/lib/foodbank/server";
+import { chartsWithChoices, loadDishPool, newPrefsFor, reportContext, targetsFor, toChartDTO } from "@/lib/foodbank/server";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -18,7 +18,7 @@ export async function GET(_req: Request, { params }: Params) {
     const { id } = await params;
     if (!(await ownedReport(coachId, id))) return NextResponse.json({ error: "Not found" }, { status: 404 });
     const rows = await prisma.dietChart.findMany({ where: { reportId: id }, orderBy: { createdAt: "desc" } });
-    return NextResponse.json({ charts: rows.map(toChartDTO) });
+    return NextResponse.json({ charts: await chartsWithChoices(rows) });
   } catch (e) {
     return jsonError(e);
   }

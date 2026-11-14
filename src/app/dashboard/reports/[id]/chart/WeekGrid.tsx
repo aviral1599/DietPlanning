@@ -123,6 +123,15 @@ export default function WeekGrid({
                               {it.locked && <span className="ml-auto text-[10px]" title="Locked">🔒</span>}
                             </div>
                             <div className="pl-3.5 text-[10px] text-slate-400">{formatPortion(dish, it.units)}</div>
+                            {(it.alts ?? []).map((a, i) => {
+                              const ad = index[a.dishId];
+                              return ad ? (
+                                <div key={i} className="mt-0.5 border-t border-dashed border-slate-200 pl-3.5 pt-0.5 text-[10px] text-slate-500">
+                                  <span className="font-semibold uppercase text-slate-400">or</span> {ad.name}{" "}
+                                  <span className="text-slate-400">· {formatPortion(ad, a.units)}</span>
+                                </div>
+                              ) : null;
+                            })}
                           </div>
                         );
                       })}

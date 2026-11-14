@@ -35,6 +35,30 @@ export default function PortalApp({ initial }: { initial: PortalData }) {
   const [request, setRequest] = useState<{ item: PlanItem | null; meal: MealTime; day: ChartDay } | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const [updatedBanner, setUpdatedBanner] = useState(false);
+  const [choices, setChoices] = useState<Record<string, number>>(initial.chart?.choices ?? {});
+
+  // The client ticks which option they had ("this OR that").
+  const pickOption = async (day: number, uid: string, choice: number) => {
+    if (!data.chart) return;
+    const key = `${day}:${uid}`;
+    const prev = choices[key];
+    const next = prev === choice ? null : choice; // tapping the ticked option clears it
+    setChoices((c) => {
+      const out = { ...c };
+      if (next === null) delete out[key];
+      else out[key] = next;
+      return out;
+    });
+    const res = await fetch("/api/portal/choices", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ chartId: data.chart.id, day, uid, choice: next }),
+    }).catch(() => null);
+    if (!res || !res.ok) {
+      setChoices((c) => ({ ...c, ...(prev === undefined ? {} : { [key]: prev }) }));
+      setToast("Couldn't save your choice — please try again.");
+    }
+  };
   // Resolved in the browser only, so server (UTC) and client (local) renders match.
   const [todayStr, setTodayStr] = useState<string | null>(null);
   useEffect(() => setTodayStr(todayISO()), []);
@@ -170,6 +194,8 @@ export default function PortalApp({ initial }: { initial: PortalData }) {
                   items={today.meals[m]}
                   index={index}
                   pendingUids={pendingUids}
+                  choiceOf={(uid) => choices[`${today.day}:${uid}`]}
+                  onChoose={(uid, c) => pickOption(today.day, uid, c)}
                   onOpen={(item) => setDetail({ item, meal: m, day: today })}
                   onAdd={() => setRequest({ item: null, meal: m, day: today })}
                 />
@@ -232,6 +258,15 @@ export default function PortalApp({ initial }: { initial: PortalData }) {
                                   <DietMark dish={dish} size={9} />
                                   {dish.name}
                                   <span className="text-slate-400">· {formatPortion(dish, it.units)}</span>
+                                  {(it.alts ?? []).map((a, i) =>
+                                    index[a.dishId] ? (
+                                      <span key={i} className="text-slate-500">
+                                        <b className="font-semibold text-slate-400"> or </b>
+                                        {index[a.dishId].name}
+                                      </span>
+                                    ) : null
+                                  )}
+                                  {choices[`${d.day}:${it.uid}`] !== undefined && <span className="text-brand-600" title="You ticked an option">✓</span>}
                                   {pendingUids.has(it.uid) && <span className="h-1.5 w-1.5 rounded-full bg-amber-500" title="Change requested" />}
                                 </button>
                               );
@@ -374,6 +409,8 @@ function MealCard({
   items,
   index,
   pendingUids,
+  choiceOf,
+  onChoose,
   onOpen,
   onAdd,
 }: {
@@ -382,6 +419,8 @@ function MealCard({
   items: PlanItem[];
   index: Record<string, import("@/lib/foodbank/types").Dish>;
   pendingUids: Set<string | null>;
+  choiceOf: (uid: string) => number | undefined;
+  onChoose: (uid: string, choice: number) => void;
   onOpen: (item: PlanItem) => void;
   onAdd: () => void;
 }) {
@@ -417,6 +456,37 @@ function MealCard({
                   <span className="text-xs tabular-nums text-slate-400">{Math.round(n.kcal)} kcal</span>
                 )}
               </button>
+              {(it.alts?.length ?? 0) > 0 && (
+                <div className="space-y-1 px-4 pb-2.5">
+                  <div className="text-[11px] font-medium text-slate-500">Choose one — tick what you had:</div>
+                  {[{ dishId: it.dishId, units: it.units }, ...(it.alts ?? [])].map((opt, ci) => {
+                    const od = index[opt.dishId];
+                    if (!od) return null;
+                    const on = choiceOf(it.uid) === ci;
+                    return (
+                      <button
+                        key={ci}
+                        type="button"
+                        role="radio"
+                        aria-checked={on}
+                        onClick={() => onChoose(it.uid, ci)}
+                        className={`flex w-full items-center gap-2 rounded-lg border px-3 py-1.5 text-left text-xs transition ${
+                          on ? "border-brand-500 bg-brand-50 text-brand-800" : "border-slate-200 bg-white text-slate-700 hover:border-brand-300"
+                        }`}
+                      >
+                        <span className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full border ${on ? "border-brand-600 bg-brand-600 text-[10px] text-white" : "border-slate-300"}`}>
+                          {on ? "✓" : ""}
+                        </span>
+                        {ci > 0 && <span className="font-semibold uppercase text-slate-400">or</span>}
+                        <span className="min-w-0 flex-1 font-medium">{od.name}</span>
+                        <span className="text-slate-400">
+                          {formatPortion(od, opt.units)} · {Math.round(od.perUnit.kcal * opt.units)} kcal
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
             </li>
           );
         })}

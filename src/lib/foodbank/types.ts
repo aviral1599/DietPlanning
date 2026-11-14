@@ -283,10 +283,52 @@ export interface Dish extends DishDef {
   cost: 1 | 2 | 3;
   custom?: boolean;
   ownerId?: string | null;
+  /** Client-specific version of another dish — used only in one chart, hidden from the food bank. */
+  hidden?: boolean;
+  variantOf?: string;
+  chartId?: string;
+  /** This coach's version that replaces a built-in dish. */
+  replaces?: string;
+  replaceActive?: boolean;
 }
 
 /** A coach-created dish stored in the database. */
 export interface CustomDishData extends Omit<DishDef, "id"> {
+  kind?: "dish";
   /** If set, nutrients per unit are entered manually instead of computed. */
   manualPerUnit?: Partial<Nutrients> | null;
+  /** Client-customised copy of `variantOf`, used only inside chart `chartId`. */
+  variantOf?: string;
+  chartId?: string;
+  /** Replaces this built-in dish for the coach (food bank, new charts, existing charts). */
+  replaces?: string;
+  /** false after "Restore original" — the built-in shows again; charts keep this version. */
+  replaceActive?: boolean;
 }
+
+/** A coach-added ingredient (stored in the custom-dish table with kind "ingredient"). */
+export interface CustomIngredientData {
+  kind: "ingredient";
+  name: string;
+  group: IngredientGroup;
+  per100: Nutrients;
+  animal?: AnimalSource;
+  allergens?: Allergen[];
+  root?: boolean;
+  liquid?: boolean;
+}
+
+export const GROCERY_CATEGORY: Record<IngredientGroup, string> = {
+  CEREALS: "Grains & Millets",
+  PULSES: "Pulses & Legumes",
+  MILK: "Dairy & Alternatives",
+  MEAT: "Eggs, Meat & Fish",
+  VEG_A: "Leafy Greens",
+  VEG_B: "Vegetables",
+  VEG_C: "Vegetables",
+  FRUITS: "Fruits",
+  SUGARS: "Sweeteners",
+  FATS: "Oils & Fats",
+  NUTS: "Nuts & Seeds",
+  OTHER: "Others",
+};

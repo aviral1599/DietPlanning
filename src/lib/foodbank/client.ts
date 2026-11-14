@@ -1,8 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { BUILTIN_DISHES, customToDish } from "./bank";
-import type { Dish } from "./types";
+import { expandCustomRows } from "./bank";
 
 export interface CustomDishRow {
   id: string;
@@ -10,13 +9,14 @@ export interface CustomDishRow {
   data: string;
 }
 
-/** Built-in + custom dishes as a list and an id → dish index. */
+/**
+ * Built-in + custom dishes. `all` is what pickers and the food bank offer;
+ * `index` resolves every dish id (including client-specific versions).
+ */
 export function useDishes(customRows: CustomDishRow[] | undefined) {
   return useMemo(() => {
-    const custom = (customRows ?? []).map(customToDish).filter((d): d is Dish => !!d);
-    const all = [...custom, ...BUILTIN_DISHES];
-    const index: Record<string, Dish> = Object.fromEntries(all.map((d) => [d.id, d]));
-    return { all, index, custom };
+    const { custom, pool, index, ingredients, replaced } = expandCustomRows(customRows ?? []);
+    return { all: pool, index, custom, ingredients, replaced };
   }, [customRows]);
 }
 

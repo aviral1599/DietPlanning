@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { guardClient, jsonError, safeJsonParse } from "@/lib/api";
-import { BUILTIN_DISHES, customToDish, snapUnits } from "@/lib/foodbank/bank";
+import { expandCustomRows, snapUnits } from "@/lib/foodbank/bank";
 import type { ChartDay, PlanItem } from "@/lib/foodbank/engine";
 import { newUid } from "@/lib/foodbank/engine";
 import { MEAL_TIMES, type MealTime } from "@/lib/types";
@@ -35,10 +35,7 @@ export async function POST(req: Request) {
     }
 
     // Resolve dishes (built-in + this coach's custom dishes only).
-    const custom = (await prisma.customDish.findMany({ where: { coachId: chart.coachId } }))
-      .map(customToDish)
-      .filter((d): d is NonNullable<typeof d> => !!d);
-    const index = Object.fromEntries([...BUILTIN_DISHES, ...custom].map((d) => [d.id, d]));
+    const { index } = expandCustomRows(await prisma.customDish.findMany({ where: { coachId: chart.coachId } }));
 
     let fromItem: PlanItem | null = null;
     const targetUid = body.targetUid ? String(body.targetUid) : null;

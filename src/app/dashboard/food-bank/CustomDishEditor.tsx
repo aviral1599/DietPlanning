@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { Chip, ChipGroup, Modal, Toggle } from "@/components/foodbank/ui";
 import { computeDish, formatPortion, scaled } from "@/lib/foodbank/bank";
-import { INGREDIENTS } from "@/lib/foodbank/ingredients";
+import { INGREDIENT_MAP } from "@/lib/foodbank/bank";
 import { CUISINE_LABELS, NUTRIENT_KEYS, NUTRIENT_META, ROLE_LABELS, type Cuisine, type Dish, type DishRole, type DishTag, type Nutrients } from "@/lib/foodbank/types";
 import { DIET_TYPE_LABELS, MEAL_TIMES, MEAL_TIME_LABELS, type DietType, type MealTime } from "@/lib/types";
 
@@ -63,7 +63,8 @@ export default function CustomDishEditor({
   const matches = useMemo(() => {
     const t = search.trim().toLowerCase();
     if (!t) return [];
-    return INGREDIENTS.filter((i) => i.name.toLowerCase().includes(t) && !(i.key in ingredients)).slice(0, 8);
+    // Built-in ingredients plus the coach's own (registered in INGREDIENT_MAP).
+    return Object.values(INGREDIENT_MAP).filter((i) => i.name.toLowerCase().includes(t) && !(i.key in ingredients)).slice(0, 8);
   }, [search, ingredients]);
 
   const manualPerUnit = useMemo(() => {
@@ -191,7 +192,7 @@ export default function CustomDishEditor({
                 </div>
                 <ul className="mt-2 divide-y divide-slate-100 rounded-lg border border-slate-200">
                   {Object.entries(ingredients).map(([k, g]) => {
-                    const ing = INGREDIENTS.find((i) => i.key === k);
+                    const ing = INGREDIENT_MAP[k];
                     return (
                       <li key={k} className="flex items-center gap-2 px-3 py-1.5 text-sm">
                         <span className="flex-1 text-slate-700">{ing?.name ?? k}</span>

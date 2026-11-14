@@ -4,6 +4,8 @@ import { INGREDIENTS } from "./ingredients";
 import {
   Allergen,
   CustomDishData,
+  CustomIngredientData,
+  GROCERY_CATEGORY,
   Dish,
   DishDef,
   DishTag,
@@ -213,17 +215,119 @@ export function buildDishIndex(custom: Dish[] = []): Record<string, Dish> {
   return { ...BUILTIN_MAP, ...Object.fromEntries(custom.map((d) => [d.id, d])) };
 }
 
-/** Convert a DB custom dish row into a computed Dish. */
-export function customToDish(row: { id: string; coachId: string; data: string }): Dish | null {
+export type CustomRow = { id: string; coachId: string; data: string };
+
+/** Key under which a coach-added ingredient is stored in dish recipes. */
+export const customIngredientKey = (rowId: string) => `x_${rowId}`;
+
+const isIngredientRow = (data: unknown): data is CustomIngredientData =>
+  !!data && typeof data === "object" && (data as { kind?: string }).kind === "ingredient";
+
+/**
+ * Make a coach's own ingredients known to the nutrition calculator. Keys are
+ * unique per row, so registering several coaches' ingredients never clashes.
+ */
+export function registerCustomIngredients(rows: CustomRow[]): Ingredient[] {
+  const out: Ingredient[] = [];
+  for (const row of rows) {
+    let data: unknown;
+    try {
+      data = JSON.parse(row.data);
+    } catch {
+      continue;
+    }
+    if (!isIngredientRow(data)) continue;
+    const ing: Ingredient = {
+      key: customIngredientKey(row.id),
+      name: data.name,
+      group: data.group,
+      source: "Added by coach",
+      per100: { ...zeroNutrients(), ...data.per100 },
+      category: GROCERY_CATEGORY[data.group] ?? "Others",
+      cost: 1,
+      allergens: data.allergens?.length ? data.allergens : undefined,
+      animal: data.animal,
+      root: data.root || undefined,
+      liquid: data.liquid || undefined,
+    };
+    INGREDIENT_MAP[ing.key] = ing;
+    out.push(ing);
+  }
+  return out;
+}
+
+/** Convert a DB custom dish row into a computed Dish (null for ingredient rows). */
+export function customToDish(row: CustomRow): Dish | null {
   try {
-    const data = JSON.parse(row.data) as CustomDishData;
-    return computeDish(
+    const data = JSON.parse(row.data) as CustomDishData | CustomIngredientData;
+    if (isIngredientRow(data)) return null;
+    const dish = computeDish(
       { ...data, id: row.id, ingredients: data.ingredients ?? {} },
       { custom: true, ownerId: row.coachId, manualPerUnit: data.manualPerUnit ?? null }
     );
+    if (data.variantOf) {
+      dish.hidden = true;
+      dish.variantOf = data.variantOf;
+      dish.chartId = data.chartId;
+    }
+    if (data.replaces) {
+      dish.replaces = data.replaces;
+      dish.replaceActive = data.replaceActive !== false;
+    }
+    return dish;
   } catch {
     return null;
   }
+}
+
+/**
+ * A coach's custom rows → everything the app needs:
+ *  • pool  — dishes offered in the food bank, pickers and the generator
+ *            (client-specific versions hidden; replaced built-ins swapped out)
+ *  • index — every dish by id, so existing charts always resolve
+ */
+export function expandCustomRows(rows: CustomRow[]) {
+  const ingredients = registerCustomIngredients(rows);
+  const custom = rows.map(customToDish).filter((d): d is Dish => !!d);
+  const replaced = new Set(custom.filter((d) => d.replaces && d.replaceActive).map((d) => d.replaces as string));
+  const pool = [...custom.filter((d) => !d.hidden), ...BUILTIN_DISHES.filter((d) => !replaced.has(d.id))];
+  const index: Record<string, Dish> = { ...BUILTIN_MAP, ...Object.fromEntries(custom.map((d) => [d.id, d])) };
+  return { custom, pool, index, ingredients, replaced };
+}
+
+/**
+ * Dishes for one chart: the coach's pool, with this chart's client-customised
+ * versions standing in for their originals.
+ */
+export function chartPool(food: { pool: Dish[]; custom: Dish[] }, chartId: string): Dish[] {
+  const variants = food.custom.filter((d) => d.hidden && d.chartId === chartId);
+  const replacedBy = new Set(variants.map((v) => v.variantOf));
+  return [...variants, ...food.pool.filter((d) => !replacedBy.has(d.id))];
+}
+
+/** Recipe fields of a dish, ready to save as a custom dish. */
+export function dishToData(d: Dish): CustomDishData {
+  return {
+    name: d.name,
+    local: d.local,
+    cuisine: d.cuisine,
+    region: d.region,
+    role: d.role,
+    fills: d.fills,
+    slots: d.slots,
+    unit: d.unit,
+    ingredients: { ...d.ingredients },
+    tags: d.tags,
+    gi: d.gi,
+    freq: d.freq,
+    avoidFor: d.avoidFor,
+    goodFor: d.goodFor,
+    companions: d.companions,
+    stapleKind: d.stapleKind,
+    staplePref: d.staplePref,
+    method: d.method,
+    prepMins: d.prepMins,
+  };
 }
 
 // ---------------------------------------------------------------------------

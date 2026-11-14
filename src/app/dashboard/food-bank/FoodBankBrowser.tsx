@@ -9,6 +9,8 @@ import { INGREDIENTS } from "@/lib/foodbank/ingredients";
 import { CUISINE_SHORT, ROLE_LABELS, tagLabel, type Cuisine, type Dish, type DishRole, type DishTag } from "@/lib/foodbank/types";
 import { DIET_TYPE_LABELS, FOOD_GROUP_LABELS, type DietType, type FoodGroup } from "@/lib/types";
 import CustomDishEditor from "./CustomDishEditor";
+import { RecipeContext } from "@/components/foodbank/RecipeEditor";
+import { useRecipeBank } from "@/components/foodbank/useRecipeBank";
 
 const DIETS = [
   { value: "veg", label: "Vegetarian" },
@@ -62,7 +64,9 @@ export default function FoodBankBrowser() {
     load();
   }, []);
 
-  const { all } = useDishes(customRows);
+  const { all, custom, ingredients: customIngredients } = useDishes(customRows);
+  const recipeActions = useRecipeBank({ customIngredients, setCustomRows });
+  const myDishCount = custom.filter((d) => !d.hidden).length;
 
   const results = useMemo(() => {
     const terms = q.toLowerCase().split(/\s+/).filter(Boolean);
@@ -108,7 +112,7 @@ export default function FoodBankBrowser() {
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Food Bank</h1>
           <p className="text-sm text-slate-500">
-            {all.length} dishes ({customRows.length} custom) · {INGREDIENTS.length} ingredients · nutrition computed from IFCT 2017 (ICMR-NIN)
+            {all.length} dishes ({myDishCount} custom) · {INGREDIENTS.length + customIngredients.length} ingredients · nutrition computed from IFCT 2017 (ICMR-NIN)
           </p>
         </div>
         <button className="btn-primary" onClick={() => setEditing({})}>
@@ -218,7 +222,29 @@ export default function FoodBankBrowser() {
           )
         }
       >
-        {open && <DishDetail dish={open} />}
+        {open && (
+          <RecipeContext.Provider
+            value={{
+              ...recipeActions,
+              // Close the dialog after saving so the list shows the result.
+              saveNew: async (b, d) => {
+                const id = await recipeActions.saveNew(b, d);
+                setOpen(null);
+                return id;
+              },
+              replace: async (b, d) => {
+                await recipeActions.replace(b, d);
+                setOpen(null);
+              },
+              restore: async (d) => {
+                await recipeActions.restore?.(d);
+                setOpen(null);
+              },
+            }}
+          >
+            <DishDetail dish={open} />
+          </RecipeContext.Provider>
+        )}
       </Modal>
 
       {editing && (

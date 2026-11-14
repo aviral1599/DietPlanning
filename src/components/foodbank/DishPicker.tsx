@@ -35,6 +35,8 @@ export interface PickerProps {
   inMeal?: string[];
   initialQuery?: string;
   maxHeight?: string;
+  /** In a chart: a dish saved from the recipe editor is added here. */
+  onUseNew?: (newId: string, units: number) => void;
 }
 
 export function sizeFor(dish: Dish, remaining?: number) {
@@ -54,6 +56,7 @@ export default function DishPicker({
   inMeal = [],
   initialQuery = "",
   maxHeight = "28rem",
+  onUseNew,
 }: PickerProps) {
   const [q, setQ] = useState(initialQuery);
   const [roleF, setRoleF] = useState<DishRole[]>(roles ?? []);
@@ -178,7 +181,7 @@ export default function DishPicker({
               </div>
               {open === d.id && (
                 <div className="mt-2 rounded-lg bg-slate-50 p-3">
-                  <DishDetail dish={d} units={units} showSources={false} />
+                  <DishDetail dish={d} units={units} showSources={false} onUseNew={onUseNew ? (id) => onUseNew(id, units) : undefined} />
                 </div>
               )}
             </li>

@@ -111,6 +111,7 @@ model DietChart {
   createdAt DateTime        @default(now())
   updatedAt DateTime        @updatedAt
   requests  ChangeRequest[]
+  choices   MealChoice[]
 
   @@index([coachId])
   @@index([reportId])
@@ -144,6 +145,20 @@ model ChangeRequest {
   @@index([coachId, status])
   @@index([chartId])
   @@index([clientId])
+}
+
+// Which option ("this OR that") the client ticked for a dish on a day.
+model MealChoice {
+  id        String   @id @default(cuid())
+  chartId   String
+  chart     DietChart @relation(fields: [chartId], references: [id], onDelete: Cascade)
+  day       Int
+  uid       String // PlanItem.uid
+  choice    Int // 0 = main dish, 1.. = alternative
+  updatedAt DateTime @updatedAt
+
+  @@unique([chartId, day, uid])
+  @@index([chartId])
 }
 
 // Coach-created dishes that extend the built-in food bank.

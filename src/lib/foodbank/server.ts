@@ -3,7 +3,7 @@ import { prisma } from "../db";
 import { safeJsonParse } from "../api";
 import type { CalcResults, MealTime, MenuPlan, SubjectInfo } from "../types";
 import { toSubjectInfo } from "../report";
-import { BUILTIN_DISHES, customToDish, parseAllergies } from "./bank";
+import { expandCustomRows, parseAllergies } from "./bank";
 import {
   buildTargets,
   ChartDay,
@@ -18,15 +18,15 @@ import type { Dish } from "./types";
 type ReportRow = NonNullable<Awaited<ReturnType<typeof prisma.report.findUnique>>>;
 type ChartRow = NonNullable<Awaited<ReturnType<typeof prisma.dietChart.findUnique>>>;
 
-/** Coach's custom dishes as computed Dish objects. */
-export async function loadCustomDishes(coachId: string): Promise<Dish[]> {
+/** Coach's custom rows expanded (ingredients registered, pool + full index). */
+export async function loadCoachFood(coachId: string) {
   const rows = await prisma.customDish.findMany({ where: { coachId }, orderBy: { createdAt: "desc" } });
-  return rows.map(customToDish).filter((d): d is Dish => !!d);
+  return expandCustomRows(rows);
 }
 
-/** Built-in + the coach's custom dishes. */
+/** Dishes the generator may use: built-in + the coach's own (replacements applied). */
 export async function loadDishPool(coachId: string): Promise<Dish[]> {
-  return [...BUILTIN_DISHES, ...(await loadCustomDishes(coachId))];
+  return (await loadCoachFood(coachId)).pool;
 }
 
 export function profileFromSubject(s: SubjectInfo): ChartProfile {
@@ -75,6 +75,8 @@ export interface ChartDTO {
   updatedBy: string;
   createdAt: string;
   updatedAt: string;
+  /** Options the client ticked: key `${day}:${uid}` → 0 main, 1.. alternative. */
+  choices?: Record<string, number>;
 }
 
 export function toChartDTO(row: ChartRow): ChartDTO {
@@ -119,4 +121,62 @@ export async function ensureClientForReport(report: ReportRow) {
   await prisma.report.update({ where: { id: report.id }, data: { clientId: client.id } });
   await prisma.dietChart.updateMany({ where: { reportId: report.id }, data: { clientId: client.id } });
   return client;
+}
+
+/**
+ * Point every item (and alternative) that uses `fromId` at `toId` in all of a
+ * coach's charts. Returns how many charts changed. Used when a coach replaces
+ * a built-in dish with their own version.
+ */
+export async function rewriteDishInCharts(coachId: string, fromId: string, toId: string, onlyChartId?: string): Promise<number> {
+  const charts = await prisma.dietChart.findMany({ where: { coachId, ...(onlyChartId ? { id: onlyChartId } : {}) } });
+  let changed = 0;
+  for (const c of charts) {
+    const days = safeJsonParse<ChartDay[]>(c.days, []);
+    let hit = false;
+    for (const d of days) {
+      for (const items of Object.values(d.meals ?? {})) {
+        for (const it of items ?? []) {
+          if (it.dishId === fromId) {
+            it.dishId = toId;
+            hit = true;
+          }
+          for (const a of it.alts ?? []) {
+            if (a.dishId === fromId) {
+              a.dishId = toId;
+              hit = true;
+            }
+          }
+        }
+      }
+    }
+    if (hit) {
+      await prisma.dietChart.update({ where: { id: c.id }, data: { days: JSON.stringify(days), version: { increment: 1 }, updatedBy: "coach" } });
+      changed++;
+    }
+  }
+  return changed;
+}
+
+export { chartPool } from "./bank";
+
+export const choiceKey = (day: number, uid: string) => `${day}:${uid}`;
+
+/** Client-ticked options for these charts, by chart id. */
+export async function loadChoices(chartIds: string[]): Promise<Record<string, Record<string, number>>> {
+  if (!chartIds.length) return {};
+  // Never let ticks break loading a chart (e.g. before the MealChoice table exists).
+  const rows = await prisma.mealChoice.findMany({ where: { chartId: { in: chartIds } } }).catch((e) => {
+    console.error("loadChoices failed", e);
+    return [];
+  });
+  const out: Record<string, Record<string, number>> = {};
+  for (const r of rows) (out[r.chartId] ??= {})[choiceKey(r.day, r.uid)] = r.choice;
+  return out;
+}
+
+/** Chart DTOs with the client's ticked options attached. */
+export async function chartsWithChoices(rows: ChartRow[]): Promise<ChartDTO[]> {
+  const choices = await loadChoices(rows.map((r) => r.id));
+  return rows.map((r) => ({ ...toChartDTO(r), choices: choices[r.id] ?? {} }));
 }

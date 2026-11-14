@@ -104,6 +104,13 @@ export function ChartPdf({ title, clinicName, coachName, subject, days, targets,
                           <View key={it.uid} style={s.item}>
                             <Text>{pdfSafe(dish.name)}</Text>
                             <Text style={s.portion}>{pdfSafe(formatPortion(dish, it.units))}</Text>
+                            {(it.alts ?? []).map((a, i) =>
+                              index[a.dishId] ? (
+                                <Text key={i} style={s.portion}>
+                                  {pdfSafe(`or ${index[a.dishId].name} (${formatPortion(index[a.dishId], a.units)})`)}
+                                </Text>
+                              ) : null
+                            )}
                           </View>
                         );
                       })}

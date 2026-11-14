@@ -2,8 +2,7 @@ import "server-only";
 import React from "react";
 import { renderToBuffer, type DocumentProps } from "@react-pdf/renderer";
 import { prisma } from "../db";
-import { BUILTIN_DISHES, customToDish } from "../foodbank/bank";
-import type { Dish } from "../foodbank/types";
+import { expandCustomRows } from "../foodbank/bank";
 import { reportContext, toChartDTO } from "../foodbank/server";
 import { ChartPdf } from "./ChartPdf";
 
@@ -17,8 +16,7 @@ export async function renderChartPdf(chartId: string) {
     prisma.coach.findUnique({ where: { id: row.coachId } }),
     prisma.customDish.findMany({ where: { coachId: row.coachId } }),
   ]);
-  const custom = customRows.map(customToDish).filter((d): d is Dish => !!d);
-  const index = Object.fromEntries([...BUILTIN_DISHES, ...custom].map((d) => [d.id, d]));
+  const { index } = expandCustomRows(customRows);
   const subject = report ? reportContext(report).subject : null;
 
   const element = React.createElement(ChartPdf, {

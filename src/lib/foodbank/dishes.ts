@@ -54,6 +54,10 @@ export const DISHES: DishDef[] = [
   { id: "green-tea", name: "Green Tea", cuisine: "pan-indian", role: "beverage", slots: [...EM, ...MM, ...ES], unit: cup(),
     ingredients: { water: 150, tea_leaves: 2 }, tags: ["quick", "light", "modern"], freq: "daily",
     method: "Steep green tea for 2–3 minutes in water just off the boil. No sugar." },
+  { id: "whey-protein-shake", name: "Whey Protein Shake", cuisine: "continental", role: "beverage", slots: [...EM, ...B, ...ES],
+    unit: { label: "glass", plural: "glasses", default: 1, step: 0.5, min: 0.5, max: 1, note: "1 scoop (30 g) in ≈250 ml water" },
+    ingredients: { whey_protein: 30, water: 250 }, tags: ["quick", "no-cook", "modern"], avoidFor: ["renal"],
+    method: "Shake 1 scoop (30 g) whey protein with about 250 ml water until smooth. Drink right away." },
   { id: "turmeric-tea", name: "Turmeric Tea", local: "Haldi chai", cuisine: "pan-indian", role: "beverage", slots: EM, unit: cup(),
     // spices ≈ 1-inch cinnamon stick (≈1 g); black pepper = a pinch (2–3 crushed peppercorns)
     ingredients: { water: 150, turmeric: 1.5, spices: 1, black_pepper: 0.3 }, tags: ["traditional", "light", "quick"], gi: "low", freq: "daily",

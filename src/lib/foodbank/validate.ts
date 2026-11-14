@@ -1,8 +1,46 @@
 import { MEAL_TIMES, MealTime } from "../types";
 import { INGREDIENT_MAP } from "./bank";
-import { CUISINE_LABELS, CustomDishData, DishRole, ROLE_LABELS, NUTRIENT_KEYS } from "./types";
+import {
+  ALLERGEN_LABELS,
+  CUISINE_LABELS,
+  CustomDishData,
+  CustomIngredientData,
+  DishRole,
+  GROCERY_CATEGORY,
+  ROLE_LABELS,
+  NUTRIENT_KEYS,
+  type Allergen,
+  type AnimalSource,
+  type IngredientGroup,
+} from "./types";
 
 type Result = { ok: true; data: CustomDishData } | { ok: false; error: string };
+type IngResult = { ok: true; data: CustomIngredientData } | { ok: false; error: string };
+
+const ANIMALS: AnimalSource[] = ["dairy", "egg", "meat", "fish", "honey"];
+
+/** Validate a coach-added ingredient (nutrition per 100 g). */
+export function validateCustomIngredient(body: Record<string, unknown>): IngResult {
+  const name = String(body.name ?? "").trim().slice(0, 80);
+  if (!name) return { ok: false, error: "Ingredient name is required." };
+  const group = String(body.group ?? "OTHER") as IngredientGroup;
+  if (!(group in GROCERY_CATEGORY)) return { ok: false, error: "Choose a food group." };
+  const raw = (body.per100 ?? {}) as Record<string, unknown>;
+  const per100 = Object.fromEntries(NUTRIENT_KEYS.map((k) => [k, Math.max(0, num(raw[k], 0))])) as unknown as CustomIngredientData["per100"];
+  if (per100.kcal > 900) return { ok: false, error: "Energy per 100 g can't exceed 900 kcal." };
+  if (per100.protein + per100.fat + per100.carbs + per100.fibre > 100) {
+    return { ok: false, error: "Protein + fat + carbs + fibre can't exceed 100 g per 100 g." };
+  }
+  if (per100.kcal === 0 && per100.protein + per100.fat + per100.carbs > 0) {
+    per100.kcal = Math.round((4 * per100.protein + 9 * per100.fat + 4 * per100.carbs + 2 * per100.fibre) * 10) / 10;
+  }
+  const animal = ANIMALS.includes(body.animal as AnimalSource) ? (body.animal as AnimalSource) : undefined;
+  const allergens = (Array.isArray(body.allergens) ? body.allergens : []).filter((a): a is Allergen => String(a) in ALLERGEN_LABELS);
+  return {
+    ok: true,
+    data: { kind: "ingredient", name, group, per100, animal, allergens, root: !!body.root, liquid: !!body.liquid },
+  };
+}
 
 const num = (v: unknown, d: number) => (typeof v === "number" && Number.isFinite(v) ? v : Number(v) || d);
 
@@ -72,7 +110,15 @@ export function validateCustomDish(body: Record<string, unknown>): Result {
       avoidFor: arr(body.avoidFor) as CustomDishData["avoidFor"],
       goodFor: arr(body.goodFor) as CustomDishData["goodFor"],
       method: body.method ? String(body.method).slice(0, 1000) : undefined,
+      companions: arr(body.companions),
+      stapleKind: (["rice", "roti"].includes(String(body.stapleKind)) ? body.stapleKind : undefined) as CustomDishData["stapleKind"],
+      staplePref: (["rice", "roti"].includes(String(body.staplePref)) ? body.staplePref : undefined) as CustomDishData["staplePref"],
+      prepMins: body.prepMins ? num(body.prepMins, 0) || undefined : undefined,
       manualPerUnit,
+      variantOf: body.variantOf ? String(body.variantOf) : undefined,
+      chartId: body.chartId ? String(body.chartId) : undefined,
+      replaces: body.replaces ? String(body.replaces) : undefined,
+      replaceActive: body.replaces ? body.replaceActive !== false : undefined,
     },
   };
 }

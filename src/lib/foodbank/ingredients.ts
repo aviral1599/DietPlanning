@@ -4282,6 +4282,31 @@ export const INGREDIENTS: Ingredient[] = [
   "cost": 3
  },
  {
+  "key": "whey_protein",
+  "name": "Whey protein powder",
+  "group": "MILK",
+  "source": "Coach label: 30 g scoop = 120 kcal, 24 g P, 2 g C, 1.5 g F",
+  "per100": {
+   "kcal": 400,
+   "protein": 80,
+   "fat": 5,
+   "carbs": 6.67,
+   "fibre": 0,
+   "calcium": 0,
+   "iron": 0,
+   "sodium": 0,
+   "potassium": 0,
+   "vitaminC": 0,
+   "folate": 0
+  },
+  "category": "Dairy & Alternatives",
+  "cost": 3,
+  "allergens": [
+   "dairy"
+  ],
+  "animal": "dairy"
+ },
+ {
   "key": "brazil_nut",
   "name": "Brazil nuts",
   "group": "NUTS",

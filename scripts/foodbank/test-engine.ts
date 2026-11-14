@@ -50,7 +50,7 @@ for (const s of cases) {
     for (let w = 0; w + 7 <= days.length; w++) if (used.filter((u) => u >= w && u < w + 7).length > cap) { freqViol++; break; }
   }
   // diet/allergy safety
-  const unsafe = days.flatMap((d) => MEAL_TIMES.flatMap((m) => d.meals[m])).map((it) => index[it.dishId]).filter((d) =>
+  const unsafe = days.flatMap((d) => MEAL_TIMES.flatMap((m) => d.meals[m])).flatMap((it) => [it.dishId, ...(it.alts ?? []).map((a) => a.dishId)]).map((id) => index[id]).filter((d) =>
     (s.dietPreference === "vegetarian" && !d.diet.vegetarian) || (s.dietPreference === "vegan" && !d.diet.vegan) ||
     (s.dietPreference === "jain" && !d.diet.jain) || (s.dietPreference === "eggetarian" && !d.diet.eggetarian) ||
     d.allergens.some((a) => profile.allergens.includes(a)) || conds.some((c) => d.avoidFor?.includes(c)));
@@ -68,6 +68,10 @@ for (const s of cases) {
   const irShare = carb.filter((it) => index[it.dishId].allTags.includes("ir-friendly")).length / Math.max(1, carb.length);
   const highGi = all.filter((it) => index[it.dishId].gi === "high").length;
   const glDay = all.reduce((a, it) => a + index[it.dishId].glPerUnit * it.units, 0) / days.length;
+  const items = days.flatMap((d) => MEAL_TIMES.flatMap((m) => d.meals[m]));
+  const withAlt = items.filter((it) => it.alts?.length);
+  const altGap = withAlt.map((it) => Math.abs(index[it.alts![0].dishId].perUnit.kcal * it.alts![0].units - index[it.dishId].perUnit.kcal * it.units));
+  console.log(`  options: ${withAlt.length} dishes with an alternative (${(withAlt.length / days.length).toFixed(1)}/day), max kcal gap ${Math.round(Math.max(0, ...altGap))}`);
   console.log(`  glycaemic: insulin-friendly carb items ${(irShare * 100).toFixed(0)}%   high-GI items/month ${highGi}   est. GL/day ${glDay.toFixed(0)}`);
   if (verbose || s.clientName.startsWith("PCOS") || s.clientName.startsWith("Prediabetes")) {
     for (const d of days.slice(0, 2)) {

@@ -8,9 +8,12 @@ import { formatPortion, scaled, snapUnits } from "@/lib/foodbank/bank";
 import { describeRequest } from "@/lib/foodbank/changes";
 import { fmtDate } from "@/lib/foodbank/client";
 import {
+  matchedUnits,
+  MAX_ALTS,
   mealTotals,
   newUid,
   suggestSwaps,
+  type PlanAlt,
   type ChartDay,
   type ChartPrefs,
   type ChartProfile,
@@ -39,6 +42,7 @@ export default function MealEditor({
   meal,
   allDays,
   index,
+  choices,
   pool,
   profile,
   prefs,
@@ -53,6 +57,8 @@ export default function MealEditor({
   meal: MealTime;
   allDays: ChartDay[];
   index: Record<string, Dish>;
+  /** What the client ticked: `${day}:${uid}` → 0 main, 1.. alternative. */
+  choices: Record<string, number>;
   pool: Dish[]; // dishes that fit the client's profile
   profile: ChartProfile;
   prefs: ChartPrefs;
@@ -67,18 +73,32 @@ export default function MealEditor({
   const [swapFor, setSwapFor] = useState<string | null>(null);
   const [detailFor, setDetailFor] = useState<string | null>(null);
   const [adding, setAdding] = useState(items.length === 0);
+  const [altFor, setAltFor] = useState<string | null>(null);
   const [rejectNote, setRejectNote] = useState<Record<string, string>>({});
 
   const target = targets.kcal * (targets.slotShare?.[meal] ?? 0);
   const tot = mealTotals(items, index);
 
   const suggestions = useMemo(
-    () => (swapFor ? suggestSwaps(allDays, day.day, meal, swapFor, profile, prefs, pool, 8) : []),
-    [swapFor, allDays, day.day, meal, profile, prefs, pool]
+    () => (swapFor ? suggestSwaps(allDays, day.day, meal, swapFor, profile, prefs, pool, 8, index) : []),
+    [swapFor, allDays, day.day, meal, profile, prefs, pool, index]
   );
 
   const update = (uid: string, patch: Partial<PlanItem>) =>
     onChange(items.map((i) => (i.uid === uid ? { ...i, ...patch, by: i.by === "auto" ? "coach" : i.by } : i)));
+
+  // Alternatives ("have this OR that"): portion sized to match the main dish's energy.
+  const altUnits = (alt: Dish, it: PlanItem) => {
+    const main = index[it.dishId];
+    const kcal = main ? main.perUnit.kcal * it.units : 0;
+    return matchedUnits(alt, kcal) ?? (alt.perUnit.kcal > 0 && kcal > 0 ? snapUnits(alt, kcal / alt.perUnit.kcal) : alt.unit.default);
+  };
+  const setAlts = (it: PlanItem, alts: PlanAlt[]) => update(it.uid, { alts: alts.length ? alts : undefined });
+  const makeMain = (it: PlanItem, i: number) => {
+    const alts = [...(it.alts ?? [])];
+    const [picked] = alts.splice(i, 1, { dishId: it.dishId, units: it.units });
+    update(it.uid, { dishId: picked.dishId, units: picked.units, alts });
+  };
 
   return (
     <div className="flex h-full flex-col">
@@ -195,9 +215,92 @@ export default function MealEditor({
                     })}
                   </div>
                 )}
+                {(it.alts ?? []).map((a, ai) => {
+                  const ad = index[a.dishId];
+                  if (!ad) return null;
+                  const an = scaled(ad.perUnit, a.units);
+                  return (
+                    <div key={`${a.dishId}-${ai}`} className="mt-2 rounded-md border border-dashed border-slate-300 bg-slate-50/60 p-2">
+                      <div className="flex items-start gap-2">
+                        <span className="mt-0.5 rounded bg-slate-200 px-1.5 text-[10px] font-semibold uppercase text-slate-600">or</span>
+                        <span className="mt-1"><DietMark dish={ad} /></span>
+                        <div className="min-w-0 flex-1">
+                          <div className="text-sm font-medium text-slate-800">{ad.name}</div>
+                          <div className="text-[11px]"><MacroLine kcal={an.kcal} protein={an.protein} carbs={an.carbs} fat={an.fat} /></div>
+                        </div>
+                        <button className="rounded-md px-1.5 text-[11px] text-slate-500 hover:text-brand-700" onClick={() => makeMain(it, ai)} title="Make this the main choice (counted in totals)">
+                          ↑ Main
+                        </button>
+                        <button
+                          className="rounded-md px-1.5 text-lg leading-none text-slate-300 hover:text-red-600"
+                          onClick={() => setAlts(it, (it.alts ?? []).filter((_, j) => j !== ai))}
+                          aria-label={`Remove option ${ad.name}`}
+                        >
+                          ×
+                        </button>
+                      </div>
+                      <div className="mt-1.5 inline-flex items-center overflow-hidden rounded-lg border border-slate-200 bg-white">
+                        <button
+                          className="px-2 py-0.5 text-slate-600 hover:bg-slate-100 disabled:opacity-30"
+                          disabled={a.units <= ad.unit.min}
+                          onClick={() => setAlts(it, (it.alts ?? []).map((x, j) => (j === ai ? { ...x, units: snapUnits(ad, x.units - ad.unit.step) } : x)))}
+                          aria-label="Decrease option portion"
+                        >
+                          −
+                        </button>
+                        <span className="min-w-[84px] px-2 text-center text-[11px] font-medium text-slate-700">{formatPortion(ad, a.units)}</span>
+                        <button
+                          className="px-2 py-0.5 text-slate-600 hover:bg-slate-100 disabled:opacity-30"
+                          disabled={a.units >= ad.unit.max}
+                          onClick={() => setAlts(it, (it.alts ?? []).map((x, j) => (j === ai ? { ...x, units: snapUnits(ad, x.units + ad.unit.step) } : x)))}
+                          aria-label="Increase option portion"
+                        >
+                          +
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+                {(it.alts?.length ?? 0) > 0 && choices[`${day.day}:${it.uid}`] !== undefined && (
+                  <div className="mt-1.5 text-[11px] text-blue-700">
+                    ✓ Client had:{" "}
+                    <b>
+                      {(() => {
+                        const c = choices[`${day.day}:${it.uid}`];
+                        const id = c === 0 ? it.dishId : it.alts?.[c - 1]?.dishId;
+                        return (id && index[id]?.name) ?? "—";
+                      })()}
+                    </b>
+                  </div>
+                )}
+                {(it.alts?.length ?? 0) < MAX_ALTS && altFor !== it.uid && (
+                  <button className="mt-1.5 text-[11px] font-semibold text-brand-700 hover:underline" onClick={() => setAltFor(it.uid)}>
+                    + Add option (or…)
+                  </button>
+                )}
+                {altFor === it.uid && (
+                  <div className="mt-2 rounded-lg border border-slate-200 p-2">
+                    <div className="mb-1 flex items-center justify-between text-xs">
+                      <span className="font-semibold text-slate-700">Option instead of {d.name}</span>
+                      <button className="text-slate-400 hover:text-slate-700" onClick={() => setAltFor(null)}>Close</button>
+                    </div>
+                    <DishPicker
+                      dishes={pool.filter((x) => x.id !== it.dishId && !(it.alts ?? []).some((a) => a.dishId === x.id))}
+                      meal={meal}
+                      roles={[d.role]}
+                      remainingKcal={n.kcal}
+                      actionLabel="Add option"
+                      onPick={(alt) => {
+                        setAlts(it, [...(it.alts ?? []), { dishId: alt.id, units: altUnits(alt, it) }]);
+                        setAltFor(null);
+                      }}
+                      maxHeight="16rem"
+                    />
+                  </div>
+                )}
                 {detailFor === it.uid && (
                   <div className="mt-2 rounded-lg bg-slate-50 p-3">
-                    <DishDetail dish={d} units={it.units} />
+                    <DishDetail dish={d} units={it.units} onUseNew={(newId) => update(it.uid, { dishId: newId })} />
                   </div>
                 )}
               </li>
@@ -226,6 +329,7 @@ export default function MealEditor({
                 remainingKcal={Math.max(0, target - tot.kcal)}
                 inMeal={items.map((i) => i.dishId)}
                 onPick={(dish, units) => onChange([...items, { uid: newUid(), dishId: dish.id, units, by: "coach" }])}
+                onUseNew={(newId, units) => onChange([...items, { uid: newUid(), dishId: newId, units, by: "coach" }])}
                 maxHeight="22rem"
               />
             </div>

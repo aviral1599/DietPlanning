@@ -31,6 +31,15 @@ import type { Allergen, Cuisine, Dish, DishRole, DishTag, Nutrients } from "./ty
 
 // ---- chart data model -----------------------------------------------------
 
+/** An alternative the client may have instead of the main dish ("or …"). */
+export interface PlanAlt {
+  dishId: string;
+  units: number;
+}
+
+/** Up to 2 alternatives → at most 3 choices per dish. */
+export const MAX_ALTS = 2;
+
 export interface PlanItem {
   uid: string;
   dishId: string;
@@ -38,6 +47,8 @@ export interface PlanItem {
   locked?: boolean;
   note?: string;
   by?: "auto" | "coach" | "client";
+  /** Options: "have this OR …". Day totals count the main dish only. */
+  alts?: PlanAlt[];
 }
 
 export type DayMeals = Record<MealTime, PlanItem[]>;
@@ -875,6 +886,42 @@ function trimEnergy(day: ChartDay, ctx: Ctx, excess: number, proteinFloor = 0.93
   }
 }
 
+// ---- alternatives ("have this OR that") -------------------------------------
+
+/** Meals where the generator offers an alternative for each dish. */
+export const ALT_MEALS: MealTime[] = ["earlyMorning", "midMorning", "eveningSnack", "bedtime"];
+
+/**
+ * Portion of `d` that gives about the same energy as the main dish
+ * (`mainKcal`), or null when it can't get close. Near-zero drinks (green tea,
+ * lemon water) pair with other light drinks at their usual serving.
+ */
+export function matchedUnits(d: Dish, mainKcal: number): number | null {
+  if (mainKcal < 20) return d.perUnit.kcal * d.unit.default <= 40 ? d.unit.default : null;
+  if (d.perUnit.kcal <= 0) return null;
+  const u = snapUnits(d, mainKcal / d.perUnit.kcal);
+  return Math.abs(d.perUnit.kcal * u - mainKcal) <= Math.max(25, mainKcal * 0.3) ? u : null;
+}
+
+function addAlternatives(day: ChartDay, ctx: Ctx, dayDishIds: Set<string>) {
+  const nv = ctx.profile.dietPreference === "non-vegetarian" ? "forbid" : "allow";
+  for (const meal of ALT_MEALS) {
+    for (const it of day.meals[meal] ?? []) {
+      if (it.alts?.length) continue;
+      const d = ctx.index[it.dishId];
+      if (!d) continue;
+      const mainKcal = d.perUnit.kcal * it.units;
+      const alt = pickDish([d.role], meal, day.day, ctx, dayDishIds, null, nv, (x) => x.id !== d.id && matchedUnits(x, mainKcal) != null);
+      if (!alt) continue;
+      it.alts = [{ dishId: alt.id, units: matchedUnits(alt, mainKcal) as number }];
+      dayDishIds.add(alt.id);
+      const arr = ctx.uses.get(alt.id) ?? [];
+      arr.push(day.day);
+      ctx.uses.set(alt.id, arr);
+    }
+  }
+}
+
 function buildDay(dayIdx: number, date: string, ctx: Ctx, existing?: DayMeals): ChartDay {
   const meals = emptyMeals();
   const dayDishIds = new Set<string>();
@@ -915,6 +962,7 @@ function buildDay(dayIdx: number, date: string, ctx: Ctx, existing?: DayMeals): 
     buildMeal(m, dayIdx, ctx, meals[m], dayDishIds, { proteinMeal, onePotMeal, nonVegToday });
   }
   balanceDay(day, ctx, dayDishIds);
+  addAlternatives(day, ctx, dayDishIds);
   return day;
 }
 
@@ -1001,9 +1049,10 @@ export function suggestSwaps(
   profile: ChartProfile,
   prefs: ChartPrefs,
   dishes: Dish[],
-  limit = 8
+  limit = 8,
+  fullIndex?: DishIndex
 ): Suggestion[] {
-  const index: DishIndex = Object.fromEntries(dishes.map((d) => [d.id, d]));
+  const index: DishIndex = { ...(fullIndex ?? {}), ...Object.fromEntries(dishes.map((d) => [d.id, d])) };
   const day = days.find((d) => d.day === dayIdx);
   const item = day?.meals[meal]?.find((i) => i.uid === uid);
   const orig = item ? index[item.dishId] : undefined;
@@ -1065,10 +1114,13 @@ export interface GroceryLine {
 
 export function groceryList(days: ChartDay[], index: DishIndex): Record<string, GroceryLine[]> {
   const totals = new Map<string, number>();
+  // Alternatives are included so the client can buy for whichever option they pick.
   for (const d of days) for (const m of MEAL_TIMES) for (const it of d.meals[m] ?? []) {
-    const dish = index[it.dishId];
-    if (!dish) continue;
-    for (const [k, g] of Object.entries(dish.ingredients)) totals.set(k, (totals.get(k) ?? 0) + g * it.units);
+    for (const choice of [{ dishId: it.dishId, units: it.units }, ...(it.alts ?? [])]) {
+      const dish = index[choice.dishId];
+      if (!dish) continue;
+      for (const [k, g] of Object.entries(dish.ingredients)) totals.set(k, (totals.get(k) ?? 0) + g * choice.units);
+    }
   }
   const out: Record<string, GroceryLine[]> = {};
   for (const [key, grams] of totals) {

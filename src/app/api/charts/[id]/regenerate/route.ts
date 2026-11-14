@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { guard, jsonError, safeJsonParse } from "@/lib/api";
 import { generateChart, regenerateDay, type ChartDay, type ChartPrefs } from "@/lib/foodbank/engine";
-import { loadDishPool, ownedChart, reportContext, targetsFor, toChartDTO } from "@/lib/foodbank/server";
+import { chartPool, loadCoachFood, ownedChart, reportContext, targetsFor, toChartDTO } from "@/lib/foodbank/server";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -30,7 +30,7 @@ export async function POST(req: Request, { params }: Params) {
 
     const { profile } = reportContext(report);
     const targets = targetsFor(report, prefs);
-    const pool = await loadDishPool(coachId);
+    const pool = chartPool(await loadCoachFood(coachId), id);
     const current = safeJsonParse<ChartDay[]>(chart.days, []);
 
     let days: ChartDay[];

@@ -2,8 +2,10 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import GroceryList from "@/components/foodbank/GroceryList";
+import { RecipeContext } from "@/components/foodbank/RecipeEditor";
+import { useRecipeBank } from "@/components/foodbank/useRecipeBank";
 import { Chip, Meter, Modal, Toggle } from "@/components/foodbank/ui";
-import { parseAllergies } from "@/lib/foodbank/bank";
+import { chartPool, parseAllergies } from "@/lib/foodbank/bank";
 import { fmtDate, useDishes, type CustomDishRow } from "@/lib/foodbank/client";
 import { chartSummary, defaultPrefs, dishFitsProfile, type ChartDay, type ChartPrefs, type ChartProfile, type PlanItem } from "@/lib/foodbank/engine";
 import type { ChartDTO } from "@/lib/foodbank/server";
@@ -30,7 +32,7 @@ export default function ChartTab({ reportId, subject }: { reportId: string; subj
   const [grocery, setGrocery] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const { all, index } = useDishes(customRows);
+  const { all, index, custom, ingredients: customIngredients } = useDishes(customRows);
   const profile: ChartProfile = useMemo(
     () => ({
       dietType: subject.dietType,
@@ -42,7 +44,11 @@ export default function ChartTab({ reportId, subject }: { reportId: string; subj
     }),
     [subject]
   );
-  const pool = useMemo(() => all.filter((d) => dishFitsProfile(d, profile, chart?.prefs)), [all, profile, chart?.prefs]);
+  // This chart's client-customised dishes stand in for their originals.
+  const pool = useMemo(
+    () => (chart ? chartPool({ pool: all, custom }, chart.id) : all).filter((d) => dishFitsProfile(d, profile, chart?.prefs)),
+    [all, custom, profile, chart?.prefs, chart?.id]
+  );
   // Condition-aware starting point for a new chart (coach can change any of it).
   const newDefaults = useMemo(() => {
     const p = defaultPrefs(profile, 7);
@@ -192,6 +198,47 @@ export default function ChartTab({ reportId, subject }: { reportId: string; subj
     if (data.chart) replaceChart(data.chart);
   };
 
+  // ---- recipe editing (customise for client / save as new / replace) --------
+  const chartRef = useRef(chart);
+  chartRef.current = chart;
+  const reloadRef = useRef(reload);
+  reloadRef.current = reload;
+  const recipeChart = useMemo(
+    () =>
+      chart
+        ? {
+            id: chart.id,
+            flush: async () => {
+              if (timer.current) clearTimeout(timer.current);
+              await flush();
+            },
+            swapDish: (fromId: string, toId: string) => {
+              const c = chartRef.current;
+              if (!c) return;
+              const days = c.days.map((d) => ({
+                ...d,
+                meals: Object.fromEntries(
+                  Object.entries(d.meals).map(([m, items]) => [
+                    m,
+                    items.map((it) => ({
+                      ...it,
+                      dishId: it.dishId === fromId ? toId : it.dishId,
+                      alts: it.alts?.map((a) => (a.dishId === fromId ? { ...a, dishId: toId } : a)),
+                    })),
+                  ])
+                ) as ChartDay["meals"],
+              }));
+              setChart({ ...c, days });
+              queueSave({ days });
+            },
+            reload: () => reloadRef.current(),
+          }
+        : undefined,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [chart?.id, flush, queueSave]
+  );
+  const recipeActions = useRecipeBank({ customIngredients, setCustomRows, chart: recipeChart });
+
   const resolveRequest = async (id: string, decision: "approve" | "reject", note: string) => {
     if (timer.current) clearTimeout(timer.current);
     await flush();
@@ -264,6 +311,7 @@ export default function ChartTab({ reportId, subject }: { reportId: string; subj
   }
 
   return (
+    <RecipeContext.Provider value={recipeActions}>
     <div className="space-y-4">
       {/* Toolbar */}
       <div className="card flex flex-wrap items-center gap-3 p-3">
@@ -423,6 +471,7 @@ export default function ChartTab({ reportId, subject }: { reportId: string; subj
               meal={sel.meal}
               allDays={chart.days}
               index={index}
+              choices={chart.choices ?? {}}
               pool={pool}
               profile={profile}
               prefs={chart.prefs}
@@ -458,5 +507,6 @@ export default function ChartTab({ reportId, subject }: { reportId: string; subj
         <GroceryList days={chart.days} index={index} />
       </Modal>
     </div>
+    </RecipeContext.Provider>
   );
 }

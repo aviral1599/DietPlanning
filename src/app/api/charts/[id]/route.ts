@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { guard, jsonError } from "@/lib/api";
 import type { ChartDay } from "@/lib/foodbank/engine";
-import { ensureClientForReport, ownedChart, toChartDTO } from "@/lib/foodbank/server";
+import { chartsWithChoices, ensureClientForReport, ownedChart, toChartDTO } from "@/lib/foodbank/server";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -12,7 +12,7 @@ export async function GET(_req: Request, { params }: Params) {
     const { id } = await params;
     const chart = await ownedChart(coachId, id);
     if (!chart) return NextResponse.json({ error: "Not found" }, { status: 404 });
-    return NextResponse.json({ chart: toChartDTO(chart) });
+    return NextResponse.json({ chart: (await chartsWithChoices([chart]))[0] });
   } catch (e) {
     return jsonError(e);
   }

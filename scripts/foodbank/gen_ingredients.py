@@ -258,6 +258,11 @@ EXTRA = [
      dict(kcal=486, p=16.5, f=30.7, c=7.7, fib=34.4, ca=631, fe=7.7, na=16, k=407, vitc=2, fol=49), {"cost": 3}),
     ("pumpkin_seeds", "Pumpkin seeds", "NUTS", "USDA FDC 170556",
      dict(kcal=559, p=30.2, f=49.1, c=4.7, fib=6.0, ca=46, fe=8.8, na=7, k=809, vitc=2, fol=58), {"cost": 3}),
+    # Coach-supplied label values for one 30 g scoop (120 kcal, 24 g protein, 2 g carbs, 1.5 g fat);
+    # minerals/vitamins not provided, so left at 0.
+    ("whey_protein", "Whey protein powder", "MILK", "Coach label: 30 g scoop = 120 kcal, 24 g P, 2 g C, 1.5 g F",
+     dict(kcal=400, p=80, f=5, c=6.67, fib=0, ca=0, fe=0, na=0, k=0, vitc=0, fol=0),
+     {"a": ["dairy"], "an": "dairy", "cost": 3, "cat": "Dairy & Alternatives"}),
     # Selenium ≈ 1917 µg/100 g (≈ 95 µg per 5 g nut; adult UL 400 µg/day) — keep to 1 nut a day.
     ("brazil_nut", "Brazil nuts", "NUTS", "USDA FDC 170569",
      dict(kcal=659, p=14.32, f=67.1, c=11.74, fib=7.5, ca=160, fe=2.43, na=3, k=659, vitc=0.7, fol=22),

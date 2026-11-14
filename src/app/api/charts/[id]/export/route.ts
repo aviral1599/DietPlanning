@@ -2,10 +2,9 @@ import { NextResponse } from "next/server";
 import ExcelJS from "exceljs";
 import { prisma } from "@/lib/db";
 import { guard, jsonError } from "@/lib/api";
-import { BUILTIN_DISHES, customToDish, formatPortion } from "@/lib/foodbank/bank";
+import { expandCustomRows, formatPortion } from "@/lib/foodbank/bank";
 import { dayTotals, groceryList } from "@/lib/foodbank/engine";
 import { ownedChart, toChartDTO } from "@/lib/foodbank/server";
-import type { Dish } from "@/lib/foodbank/types";
 import { MEAL_TIMES, MEAL_TIME_LABELS } from "@/lib/types";
 
 export const runtime = "nodejs";
@@ -20,8 +19,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
     if (!row) return NextResponse.json({ error: "Not found" }, { status: 404 });
     const chart = toChartDTO(row);
     const report = await prisma.report.findUnique({ where: { id: row.reportId }, select: { clientName: true } });
-    const custom = (await prisma.customDish.findMany({ where: { coachId } })).map(customToDish).filter((d): d is Dish => !!d);
-    const index = Object.fromEntries([...BUILTIN_DISHES, ...custom].map((d) => [d.id, d]));
+    const { index } = expandCustomRows(await prisma.customDish.findMany({ where: { coachId } }));
 
     const wb = new ExcelJS.Workbook();
     wb.creator = "NutriPlan";
@@ -36,7 +34,11 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
           `${MEAL_TIME_LABELS[m]} ${chart.mealTimes[m] ?? ""}`.trim(),
           ...week.map((d) =>
             (d.meals[m] ?? [])
-              .map((it) => (index[it.dishId] ? `${index[it.dishId].name} — ${formatPortion(index[it.dishId], it.units)}` : "?"))
+              .map((it) =>
+                [{ dishId: it.dishId, units: it.units }, ...(it.alts ?? [])]
+                  .map((c) => (index[c.dishId] ? `${index[c.dishId].name} — ${formatPortion(index[c.dishId], c.units)}` : "?"))
+                  .join(" OR ")
+              )
               .join("\n")
           ),
         ]);

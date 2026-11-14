@@ -4,7 +4,7 @@ import { safeJsonParse } from "../api";
 import type { Analysis, CalcResults, SubjectInfo } from "../types";
 import { toSubjectInfo } from "../report";
 import type { PlanItem } from "./engine";
-import { ChartDTO, profileFromSubject, toChartDTO } from "./server";
+import { ChartDTO, chartsWithChoices, profileFromSubject } from "./server";
 
 export interface PortalRequestDTO {
   id: string;
@@ -49,7 +49,12 @@ export async function loadPortalData(clientId: string): Promise<PortalData | nul
     : await prisma.report.findFirst({ where: { clientId }, orderBy: { updatedAt: "desc" } });
 
   const subject = report ? toSubjectInfo(report as unknown as Record<string, unknown>) : null;
-  const customRows = await prisma.customDish.findMany({ where: { coachId: client.coachId } });
+  // The coach's dishes and ingredients — but client-customised versions only
+  // for this client's own chart (never another client's).
+  const customRows = (await prisma.customDish.findMany({ where: { coachId: client.coachId } })).filter((r) => {
+    const data = safeJsonParse<{ chartId?: string }>(r.data, {});
+    return !data.chartId || data.chartId === chartRow?.id;
+  });
   const requests = chartRow
     ? await prisma.changeRequest.findMany({ where: { chartId: chartRow.id, clientId }, orderBy: { createdAt: "desc" }, take: 100 })
     : [];
@@ -61,7 +66,7 @@ export async function loadPortalData(clientId: string): Promise<PortalData | nul
     results: report ? safeJsonParse<CalcResults | null>(report.results, null) : null,
     analysis: report ? safeJsonParse<Analysis | null>(report.analysis, null) : null,
     reportDate: report?.updatedAt.toISOString() ?? null,
-    chart: chartRow ? toChartDTO(chartRow) : null,
+    chart: chartRow ? (await chartsWithChoices([chartRow]))[0] : null,
     customDishes: customRows.map((r) => ({ id: r.id, coachId: r.coachId, data: r.data })),
     requests: requests.map((r) => ({
       id: r.id,

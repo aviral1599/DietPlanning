@@ -1,11 +1,23 @@
 "use client";
 
 import { DIET_TYPE_LABELS, FOOD_GROUP_LABELS, type DietType, type FoodGroup, MEAL_TIME_LABELS } from "@/lib/types";
-import { formatPortion, INGREDIENT_MAP, scaled } from "@/lib/foodbank/bank";
+import { formatPortion, scaled } from "@/lib/foodbank/bank";
+import IngredientsSection from "./RecipeEditor";
 import { ALLERGEN_LABELS, CUISINE_LABELS, glBand, NUTRIENT_KEYS, NUTRIENT_META, ROLE_LABELS, tagLabel, type Dish } from "@/lib/foodbank/types";
 import { Chip, DietMark } from "./ui";
 
-export default function DishDetail({ dish, units, showSources = true }: { dish: Dish; units?: number; showSources?: boolean }) {
+export default function DishDetail({
+  dish,
+  units,
+  showSources = true,
+  onUseNew,
+}: {
+  dish: Dish;
+  units?: number;
+  showSources?: boolean;
+  /** In a chart: "Save as new dish" also puts the new dish in this spot. */
+  onUseNew?: (newId: string) => void;
+}) {
   const u = units ?? dish.unit.default;
   const n = scaled(dish.perUnit, u);
   const one = dish.perUnit;
@@ -17,7 +29,9 @@ export default function DishDetail({ dish, units, showSources = true }: { dish: 
         <DietMark dish={dish} size={14} />
         <span className="font-semibold text-slate-900">{dish.name}</span>
         {dish.local && <span className="text-slate-400">· {dish.local}</span>}
-        {dish.custom && <Chip size="sm" tone="blue">Custom</Chip>}
+        {dish.custom && !dish.hidden && !dish.replaces && <Chip size="sm" tone="blue">Custom</Chip>}
+        {dish.hidden && <Chip size="sm" tone="amber">Customised for this client</Chip>}
+        {dish.replaces && dish.replaceActive && <Chip size="sm" tone="blue">My version</Chip>}
       </div>
       <div className="flex flex-wrap gap-1.5">
         <Chip size="sm">{ROLE_LABELS[dish.role]}</Chip>
@@ -60,27 +74,7 @@ export default function DishDetail({ dish, units, showSources = true }: { dish: 
         )}
       </div>
 
-      {Object.keys(dish.ingredients).length > 0 && (
-        <div>
-          <div className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-500">Ingredients (raw weight)</div>
-          <table className="w-full text-xs">
-            <tbody>
-              {Object.entries(dish.ingredients).map(([k, g]) => {
-                const ing = INGREDIENT_MAP[k];
-                return (
-                  <tr key={k} className="border-b border-slate-100">
-                    <td className="py-1 pr-2 text-slate-700">{ing?.name ?? k}</td>
-                    <td className="py-1 pr-2 text-right tabular-nums text-slate-600">
-                      {Math.round(g * u * 10) / 10} {ing?.liquid ? "ml" : "g"}
-                    </td>
-                    {showSources && <td className="hidden py-1 text-right text-[10px] text-slate-400 sm:table-cell">{ing?.source}</td>}
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      )}
+      <IngredientsSection dish={dish} units={u} showSources={showSources} onUseNew={onUseNew} />
 
       {Object.keys(dish.exchanges).length > 0 && (
         <div className="flex flex-wrap gap-1.5">
