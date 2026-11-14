@@ -225,7 +225,7 @@ export function ReportPdf(props: ReportPdfProps) {
             ...(results.goalAdjustment
               ? [["Goal adjustment", results.goalAdjustment] as [string, number]]
               : []),
-            ["TARGET ENERGY", results.energy],
+            [results.energySource === "manual" ? "TARGET ENERGY (set by coach)" : "TARGET ENERGY", results.energy],
           ].map(([k, v], i) => (
             <View style={s.row} key={i}>
               <Text style={[s.td, { width: "70%" }]}>{k as string}</Text>

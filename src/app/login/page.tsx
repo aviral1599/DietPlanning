@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth";
+import Link from "next/link";
 import AuthForm from "./AuthForm";
 
 export default async function LoginPage() {
@@ -54,6 +55,12 @@ export default async function LoginPage() {
             <h1 className="mt-1 text-3xl font-bold text-slate-900">NutriPlan</h1>
           </div>
           <AuthForm />
+          <div className="mt-8 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-center text-sm text-slate-600">
+            Are you a client?{" "}
+            <Link href="/portal/login" className="font-semibold text-brand-700 hover:underline">
+              Sign in to your diet portal →
+            </Link>
+          </div>
         </div>
       </div>
     </div>

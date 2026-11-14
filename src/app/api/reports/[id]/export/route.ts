@@ -86,7 +86,7 @@ export async function GET(
     push("Physical activity (kcal)", results.pa);
     push("SDA (kcal)", results.sda);
     push("TEE (kcal)", results.tee);
-    push("Target energy (kcal)", results.energy);
+    push("Target energy (kcal)", results.energySource === "manual" ? `${results.energy} (set by coach)` : results.energy);
     push("Protein (g)", results.protein.grams);
     push("Fat (g)", results.fat.grams);
     push("Carbohydrate (g)", results.cho.grams);

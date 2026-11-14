@@ -4,7 +4,7 @@
 
 export type Sex = "male" | "female";
 
-export type ActivityLevel = "sedentary" | "moderate" | "heavy";
+export type ActivityLevel = "sedentary" | "light" | "moderate" | "heavy";
 
 export type BmrMethod = "harris-benedict" | "mifflin" | "icmr";
 
@@ -173,6 +173,8 @@ export interface NutritionSettings {
   proteinBasis: "ideal" | "actual";
   // Fat as a fraction of total energy.
   fatPercent: number;
+  // Optional kcal added to / taken off TEE for the weight goal. null = automatic.
+  goalAdjustment?: number | null;
   // Optional manual energy override (kcal). If set, replaces computed energy.
   energyOverride?: number | null;
 }
@@ -203,6 +205,10 @@ export interface CalcResults {
   tee: number; // total energy expenditure = BMR + PA + SDA
   goalAdjustment: number; // +/- kcal applied for weight goal
   energy: number; // final target kcal (tee + goalAdjustment or override)
+  /** How the target was set: formula, or typed in by the coach. */
+  energySource?: "auto" | "manual";
+  /** Set when the formula target was raised to the safe minimum (1200 F / 1500 M). */
+  energyFloored?: boolean;
   weightStatus: number; // ibw - actual weight
   weightStatusLabel: string;
   referenceWeight: number; // weight used for protein

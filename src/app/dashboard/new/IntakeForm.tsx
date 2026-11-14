@@ -10,7 +10,8 @@ import {
   SEX_OPTIONS,
 } from "@/lib/ui-options";
 import GlycemicFields from "@/components/GlycemicFields";
-import type { DietType, GlycemicLabs, GlycemicStatus } from "@/lib/types";
+import { computeAssessment, defaultSettings } from "@/lib/nutrition";
+import type { CalcResults, DietType, GlycemicLabs, GlycemicStatus, SubjectInfo } from "@/lib/types";
 
 function Field({
   label,
@@ -38,6 +39,28 @@ export default function IntakeForm() {
   const [dietType, setDietType] = useState<DietType>("general");
   const [glycemicStatus, setGlycemicStatus] = useState<GlycemicStatus>("none");
   const [labs, setLabs] = useState<GlycemicLabs>({});
+  const [form, setForm] = useState<Record<string, unknown>>({});
+
+  // Live estimate of the energy target as the form is filled in.
+  let estimate: CalcResults | null = null;
+  const subj = {
+    clientName: "",
+    age: Number(form.age ?? 0),
+    sex: (form.sex as SubjectInfo["sex"]) ?? "male",
+    heightCm: Number(heightCm || 0),
+    weightKg: Number(form.weightKg ?? 0),
+    activityLevel: (form.activityLevel as SubjectInfo["activityLevel"]) ?? "sedentary",
+    incomeGroup: "middle",
+    allergies: "",
+    dietType,
+    dietPreference: "vegetarian",
+    objective: "",
+    glycemicStatus: dietType === "diabetes" ? "none" : dietType === "insulin-resistance" && glycemicStatus === "none" ? "insulin-resistance" : glycemicStatus,
+    labs,
+  } satisfies SubjectInfo;
+  if (subj.age > 0 && subj.heightCm >= 50 && subj.weightKg >= 2) {
+    estimate = computeAssessment(subj, defaultSettings(subj));
+  }
 
   function changeDietType(v: DietType) {
     setDietType(v);
@@ -86,7 +109,11 @@ export default function IntakeForm() {
   const heightM = heightCm ? (Number(heightCm) / 100).toFixed(2) : "—";
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form
+      onSubmit={handleSubmit}
+      onChange={(e) => setForm(Object.fromEntries(new FormData(e.currentTarget)))}
+      className="space-y-6"
+    >
       <section className="card p-6">
         <h2 className="mb-4 text-sm font-bold uppercase tracking-wide text-brand-700">
           Subject&apos;s General Information
@@ -185,6 +212,25 @@ export default function IntakeForm() {
           </Field>
         </div>
       </section>
+
+      {estimate && (
+        <div className="card flex flex-wrap items-center gap-x-5 gap-y-1 p-4 text-sm" aria-live="polite">
+          <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">Estimate</span>
+          <span>BMI {estimate.bmi} · {estimate.bmiCategory}</span>
+          <span>BMR {estimate.bmr}</span>
+          <span>TEE {estimate.tee}</span>
+          {estimate.goalAdjustment !== 0 && (
+            <span>
+              Goal {estimate.goalAdjustment > 0 ? "+" : ""}
+              {estimate.goalAdjustment}
+            </span>
+          )}
+          <span className="font-bold text-brand-700">Target ≈ {estimate.energy} kcal/day</span>
+          <span className="w-full text-xs text-slate-400">
+            Mifflin–St Jeor BMR × activity × 1.1 (SDA), minus the goal deficit. You can change the target or any parameter on the next screen.
+          </span>
+        </div>
+      )}
 
       {error && (
         <div className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">

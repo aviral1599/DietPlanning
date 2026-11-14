@@ -20,11 +20,22 @@ export const round = (n: number, d = 1) => {
 // Default calculation settings, derived from the subject where sensible.
 // ---------------------------------------------------------------------------
 
-const ACTIVITY_PA_FACTOR: Record<ActivityLevel, number> = {
-  sedentary: 0.4,
-  moderate: 0.6,
-  heavy: 1.0,
+// Physical activity as a fraction of BMR. With SDA (10 %) on top these give
+// the standard overall multipliers of BMR: sedentary ~1.2, light ~1.375,
+// moderate ~1.55, heavy ~1.75.
+export const ACTIVITY_PA_FACTOR: Record<ActivityLevel, number> = {
+  sedentary: 0.1,
+  light: 0.25,
+  moderate: 0.4,
+  heavy: 0.6,
 };
+
+/** Overall TEE ÷ BMR for a set of factors, e.g. 1.38. */
+export const activityMultiplier = (activityFactor: number, sdaFactor: number) =>
+  round((1 + activityFactor) * (1 + sdaFactor), 2);
+
+/** Lowest auto target, unless the coach types one in. */
+export const MIN_ENERGY: Record<Sex, number> = { female: 1200, male: 1500 };
 
 // Protein g/kg reference weight by therapeutic diet type.
 const PROTEIN_PER_KG: Record<DietType, number> = {
@@ -58,12 +69,35 @@ const FAT_PERCENT: Record<DietType, number> = {
   "high-protein": 0.25,
 };
 
-// Energy adjustment (kcal) applied to TEE for the weight goal.
-const GOAL_ADJUSTMENT: Partial<Record<DietType, number>> = {
-  "weight-loss": -500,
-  "weight-gain": 500,
-  pcos: -300, // mild deficit commonly advised
-};
+/**
+ * Automatic kcal adjustment to TEE for the weight goal.
+ *  • Weight loss −500 (≈ 0.5 kg/week), weight gain +500.
+ *  • PCOS, insulin resistance / prediabetes: −300 when overweight
+ *    (BMI ≥ 23, Asian cut-off) — a steady 5–10 % weight loss is the
+ *    best-proven way to improve insulin sensitivity. The coach can pick a
+ *    bigger deficit from the suggestions.
+ *  • Any other condition with a glycaemic flag and BMI ≥ 23: −300.
+ */
+export function autoGoalAdjustment(subject: SubjectInfo): number {
+  const b = bmi(subject.weightKg, subject.heightCm);
+  switch (subject.dietType) {
+    case "weight-loss":
+      return -500;
+    case "weight-gain":
+      return 500;
+    case "pcos":
+    case "insulin-resistance":
+    case "diabetes":
+      return b >= 23 ? -300 : 0;
+    case "general":
+    case "hypothyroid":
+    case "hypertension":
+    case "high-protein":
+      return subject.glycemicStatus && subject.glycemicStatus !== "none" && b >= 23 ? -300 : 0;
+    default:
+      return 0; // renal, pregnancy, lactation — no deficit
+  }
+}
 
 export function defaultSettings(subject: SubjectInfo): NutritionSettings {
   // Insulin resistance / prediabetes on top of another goal: slightly more
@@ -73,13 +107,16 @@ export function defaultSettings(subject: SubjectInfo): NutritionSettings {
     proteinPerKg = Math.max(proteinPerKg, 1.1);
   }
   return {
-    bmrMethod: "harris-benedict",
+    // Mifflin–St Jeor is the most accurate predictive equation for adults,
+    // including overweight/obese (Academy of Nutrition & Dietetics).
+    bmrMethod: "mifflin",
     ibwMethod: "broca",
-    activityFactor: ACTIVITY_PA_FACTOR[subject.activityLevel],
+    activityFactor: ACTIVITY_PA_FACTOR[subject.activityLevel] ?? ACTIVITY_PA_FACTOR.sedentary,
     sdaFactor: 0.1,
     proteinPerKg,
     proteinBasis: "ideal",
     fatPercent: FAT_PERCENT[subject.dietType] ?? 0.25,
+    goalAdjustment: null,
     energyOverride: null,
   };
 }
@@ -173,6 +210,20 @@ export function basalMetabolicRate(
   }
 }
 
+/** The BMR equation written out, for display. */
+export function bmrFormula(sex: Sex, method: BmrMethod): string {
+  switch (method) {
+    case "mifflin":
+      return `10 × wt + 6.25 × ht − 5 × age ${sex === "male" ? "+ 5" : "− 161"}`;
+    case "icmr":
+      return "FAO/WHO/ICMR weight-based equation for age band";
+    default:
+      return sex === "male"
+        ? "88.36 + 13.40 × wt + 4.80 × ht − 5.68 × age"
+        : "447.59 + 9.25 × wt + 3.10 × ht − 4.33 × age";
+  }
+}
+
 export const BMR_METHOD_LABELS: Record<BmrMethod, string> = {
   "harris-benedict": "Harris–Benedict (revised)",
   mifflin: "Mifflin–St Jeor",
@@ -183,16 +234,17 @@ export const BMR_METHOD_LABELS: Record<BmrMethod, string> = {
 // ICMR RDA reference values (used for the comparison table)
 // ---------------------------------------------------------------------------
 
+// "light" is interpolated between ICMR sedentary and moderate.
 const RDA_ENERGY: Record<Sex, Record<ActivityLevel, number>> = {
-  male: { sedentary: 2110, moderate: 2710, heavy: 3470 },
-  female: { sedentary: 1660, moderate: 2130, heavy: 2720 },
+  male: { sedentary: 2110, light: 2410, moderate: 2710, heavy: 3470 },
+  female: { sedentary: 1660, light: 1895, moderate: 2130, heavy: 2720 },
 };
 
 const RDA_PROTEIN: Record<Sex, number> = { male: 54, female: 46 };
 
 const RDA_FAT: Record<Sex, Record<ActivityLevel, number>> = {
-  male: { sedentary: 25, moderate: 30, heavy: 40 },
-  female: { sedentary: 20, moderate: 25, heavy: 30 },
+  male: { sedentary: 25, light: 27, moderate: 30, heavy: 40 },
+  female: { sedentary: 20, light: 22, moderate: 25, heavy: 30 },
 };
 
 // ---------------------------------------------------------------------------
@@ -226,17 +278,17 @@ export function computeAssessment(
   const sda = settings.sdaFactor * (bmr + pa);
   const tee = bmr + pa + sda;
 
-  // Insulin resistance / prediabetes: a modest deficit only when overweight
-  // (BMI ≥ 23, Asian cut-off) — 5–7 % weight loss is the best-proven way to
-  // prevent progression to diabetes.
   const goalAdjustment =
-    subject.dietType === "insulin-resistance"
-      ? bmiVal >= 23 ? -300 : 0
-      : GOAL_ADJUSTMENT[subject.dietType] ?? 0;
-  const energy =
-    settings.energyOverride != null && settings.energyOverride > 0
-      ? settings.energyOverride
-      : tee + goalAdjustment;
+    settings.goalAdjustment != null && Number.isFinite(settings.goalAdjustment)
+      ? settings.goalAdjustment
+      : autoGoalAdjustment(subject);
+  const manual = settings.energyOverride != null && settings.energyOverride > 0;
+  const floor = MIN_ENERGY[subject.sex] ?? 1200;
+  const formula = tee + goalAdjustment;
+  const energyFloored = !manual && goalAdjustment < 0 && formula < floor;
+  const energy = Math.round(
+    manual ? (settings.energyOverride as number) : energyFloored ? Math.min(floor, tee) : formula
+  );
 
   // Reference weight for protein (guard against negative/implausible IBW).
   const referenceWeight =
@@ -271,12 +323,14 @@ export function computeAssessment(
     ibw: round(ibw),
     bmi: round(bmiVal, 1),
     bmiCategory: bmiCategory(bmiVal),
-    bmr: round(bmr),
-    pa: round(pa),
-    sda: round(sda),
-    tee: round(tee),
-    goalAdjustment,
-    energy: round(energy),
+    bmr: round(bmr, 0),
+    pa: round(pa, 0),
+    sda: round(sda, 0),
+    tee: round(tee, 0),
+    goalAdjustment: round(goalAdjustment, 0),
+    energy: round(energy, 0),
+    energySource: manual ? "manual" : "auto",
+    energyFloored,
     weightStatus: round(weightStatus),
     weightStatusLabel,
     referenceWeight: round(referenceWeight),
@@ -317,4 +371,46 @@ function buildRdaComparison(
     row("FAT", rdaFat, planned.fat, "g"),
     row("CARBOHYDRATE", rdaCho, planned.cho, "g"),
   ];
+}
+
+// ---------------------------------------------------------------------------
+// Target-energy suggestions shown to the coach (click to apply).
+// ---------------------------------------------------------------------------
+
+export interface EnergySuggestion {
+  key: string;
+  label: string;
+  kcal: number;
+  note: string;
+}
+
+export function energySuggestions(subject: SubjectInfo, results: CalcResults): EnergySuggestion[] {
+  const tee = results.tee;
+  const wt = subject.weightKg;
+  const b = results.bmi;
+  const floor = MIN_ENERGY[subject.sex] ?? 1200;
+  const r = (n: number) => Math.round(n / 10) * 10;
+  const out: EnergySuggestion[] = [];
+  const add = (key: string, label: string, kcal: number, note: string) => {
+    const v = r(kcal);
+    if (v < floor || out.some((o) => Math.abs(o.kcal - v) < 30)) return;
+    out.push({ key, label, kcal: v, note });
+  };
+  const noDeficit = ["renal", "pregnancy", "lactation", "weight-gain"].includes(subject.dietType);
+
+  add("maintain", "Maintain weight", tee, "TEE — no deficit");
+  if (!noDeficit && (b >= 23 || subject.dietType === "weight-loss")) {
+    add("mild", "Gentle loss", tee - 300, "TEE − 300 · ~0.3 kg/week");
+    add("loss", "Weight loss", tee - 500, "TEE − 500 · ~0.5 kg/week");
+    if (b >= 25) {
+      add("kg25", "25 kcal/kg body wt", 25 * wt, `25 × ${wt} kg · obesity guideline`);
+      add("kg20", "20 kcal/kg body wt", 20 * wt, `20 × ${wt} kg · faster loss`);
+    }
+  }
+  if (subject.dietType === "weight-gain" || b < 18.5) {
+    add("gain3", "Gentle gain", tee + 300, "TEE + 300");
+    add("gain5", "Weight gain", tee + 500, "TEE + 500 · ~0.5 kg/week");
+  }
+  if (b < 23 && results.ibw > 0) add("ibw30", "30 kcal/kg ideal wt", 30 * results.ibw, `30 × ${results.ibw} kg IBW`);
+  return out.sort((a, c) => a.kcal - c.kcal);
 }

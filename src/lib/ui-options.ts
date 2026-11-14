@@ -1,9 +1,10 @@
 import { DIET_TYPE_LABELS } from "./types";
 
 export const ACTIVITY_OPTIONS = [
-  { value: "sedentary", label: "Sedentary (little/no exercise)" },
+  { value: "sedentary", label: "Sedentary (desk job, little/no exercise)" },
+  { value: "light", label: "Light (walks / light exercise 1–3×/week)" },
   { value: "moderate", label: "Moderate (exercise 3–5×/week)" },
-  { value: "heavy", label: "Heavy (hard exercise / labour)" },
+  { value: "heavy", label: "Heavy (hard daily exercise / labour)" },
 ];
 
 export const INCOME_OPTIONS = [
@@ -30,8 +31,8 @@ export const SEX_OPTIONS = [
 ];
 
 export const BMR_METHOD_OPTIONS = [
+  { value: "mifflin", label: "Mifflin–St Jeor (recommended)" },
   { value: "harris-benedict", label: "Harris–Benedict (revised)" },
-  { value: "mifflin", label: "Mifflin–St Jeor" },
   { value: "icmr", label: "ICMR / FAO-WHO" },
 ];
 

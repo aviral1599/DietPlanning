@@ -662,6 +662,7 @@ function balanceDay(day: ChartDay, ctx: Ctx, dayDishIds: Set<string>) {
     if (!improved) {
       // add a high-protein item to breakfast or evening snack
       for (const meal of ["eveningSnack", "breakfast", "midMorning"] as MealTime[]) {
+        if (day.meals[meal].length >= 3) continue;
         const d = pickDish(
           ["protein", "snack", "salad", "raita", "beverage"],
           meal,
@@ -748,7 +749,7 @@ function balanceDay(day: ChartDay, ctx: Ctx, dayDishIds: Set<string>) {
   for (let pass = 0; pass < 3; pass++) {
     const t = tot();
     if (t.kcal < targets.kcal * 0.96) growEnergy(day, ctx, targets.kcal - t.kcal, dayDishIds);
-    else if (t.kcal > targets.kcal * 1.04) trimEnergy(day, ctx, t.kcal - targets.kcal);
+    else if (t.kcal > targets.kcal * 1.04) trimEnergy(day, ctx, t.kcal - targets.kcal, 0.9);
     else break;
   }
 }
@@ -809,10 +810,45 @@ function growEnergy(day: ChartDay, ctx: Ctx, gap: number, dayDishIds: Set<string
   }
 }
 
-function trimEnergy(day: ChartDay, ctx: Ctx, excess: number) {
+/**
+ * Step dal / protein portions back down (largest first) while protein stays at
+ * or above `proteinFloor` × target. Low-energy plans need this: the protein
+ * top-up can push dal to 2–3 katoris once staples are already at their minimum.
+ */
+function trimProteinPortions(day: ChartDay, ctx: Ctx, budget: number, proteinFloor: number): number {
+  const { index, targets } = ctx;
+  let moved = 0;
+  let protein = dayTotals(day, index).protein;
+  for (let guard = 0; guard < 20 && moved < budget; guard++) {
+    let best: { it: PlanItem; d: Dish; kcal: number } | null = null;
+    for (const meal of ["lunch", "dinner", "breakfast"] as MealTime[]) {
+      for (const it of day.meals[meal]) {
+        const d = index[it.dishId];
+        if (!d || it.locked || !["dal", "protein", "one-pot"].includes(d.role) || it.units <= d.unit.default) continue;
+        const kcal = d.perUnit.kcal * it.units;
+        if (!best || kcal > best.kcal) best = { it, d, kcal };
+      }
+    }
+    if (!best) break;
+    const next = Math.max(best.d.unit.default, snapUnits(best.d, best.it.units - best.d.unit.step));
+    if (next >= best.it.units) break;
+    const dp = (best.it.units - next) * best.d.perUnit.protein;
+    if (protein - dp < targets.protein * proteinFloor) break;
+    moved += (best.it.units - next) * best.d.perUnit.kcal;
+    protein -= dp;
+    best.it.units = next;
+  }
+  return moved;
+}
+
+function trimEnergy(day: ChartDay, ctx: Ctx, excess: number, proteinFloor = 0.93) {
   let left = excess - adjustRole(day, ctx, ["dinner", "lunch", "breakfast"], ["staple", "one-pot", "breakfast"], -1, excess);
   if (left <= ctx.targets.kcal * 0.03) return;
   left -= adjustRole(day, ctx, ["eveningSnack", "midMorning", "earlyMorning", "bedtime"], ["snack", "nuts", "fruit", "beverage"], -1, left);
+  if (left <= ctx.targets.kcal * 0.03) return;
+  left -= trimProteinPortions(day, ctx, left, proteinFloor);
+  if (left <= ctx.targets.kcal * 0.03) return;
+  left -= adjustRole(day, ctx, ["dinner", "lunch"], ["sabzi", "salad"], -1, left);
   if (left <= ctx.targets.kcal * 0.03) return;
   // drop optional extras, most energy-dense first
   const optional: { meal: MealTime; it: PlanItem; kcal: number }[] = [];
