@@ -3,9 +3,10 @@
 import { useMemo, useState } from "react";
 import { Chip, ChipGroup, Toggle } from "@/components/foodbank/ui";
 import { INGREDIENTS } from "@/lib/foodbank/ingredients";
-import { WEEKDAYS, nextMonday, type ChartPrefs } from "@/lib/foodbank/engine";
+import { WEEKDAYS, nextMonday, type ChartPrefs, type ChartProfile } from "@/lib/foodbank/engine";
 import { CUISINE_SHORT, type Cuisine, type Dish, type DishTag } from "@/lib/foodbank/types";
 import type { DietPreference } from "@/lib/types";
+import FoodSelector from "./FoodSelector";
 
 const FOCUS: { value: DishTag; label: string }[] = [
   { value: "ir-friendly", label: "Insulin-friendly" },
@@ -32,6 +33,8 @@ export default function ChartGenerator({
   initial,
   dietPreference,
   dishes,
+  profile,
+  clientName,
   busy,
   submitLabel,
   onSubmit,
@@ -40,6 +43,8 @@ export default function ChartGenerator({
   initial?: Partial<ChartPrefs>;
   dietPreference: DietPreference;
   dishes: Dish[];
+  profile: ChartProfile;
+  clientName: string;
   busy?: boolean;
   submitLabel: string;
   onSubmit: (prefs: Partial<ChartPrefs>) => void;
@@ -56,6 +61,22 @@ export default function ChartGenerator({
   const [em, setEm] = useState(initial?.includeEarlyMorning ?? true);
   const [bt, setBt] = useState(initial?.includeBedtime ?? true);
   const [search, setSearch] = useState("");
+  const [preferred, setPreferred] = useState<string[]>(initial?.preferDishes ?? []);
+  const [step, setStep] = useState<1 | 2>(1);
+
+  const collect = (): Partial<ChartPrefs> => ({
+    days,
+    startDate,
+    cuisines,
+    nonVegDays,
+    focusTags,
+    avoidTags,
+    excludeIngredients: exIng,
+    excludeDishes: exDish,
+    preferDishes: preferred.filter((id) => !exDish.includes(id)),
+    includeEarlyMorning: em,
+    includeBedtime: bt,
+  });
 
   const matches = useMemo(() => {
     const t = search.trim().toLowerCase();
@@ -72,8 +93,67 @@ export default function ChartGenerator({
   const ingName = (k: string) => INGREDIENTS.find((i) => i.key === k)?.name ?? k;
   const dishName = (k: string) => dishes.find((d) => d.id === k)?.name ?? k;
 
+  const steps = (
+    <ol className="flex flex-wrap items-center gap-2 text-sm" aria-label="Steps">
+      {(
+        [
+          [1, "Plan settings"],
+          [2, "Choose foods"],
+        ] as const
+      ).map(([n, label], i) => (
+        <li key={n} className="flex items-center gap-2">
+          {i > 0 && <span className="h-px w-6 bg-slate-300" aria-hidden="true" />}
+          <button
+            type="button"
+            onClick={() => setStep(n)}
+            aria-current={step === n ? "step" : undefined}
+            className={`flex items-center gap-2 rounded-full px-3 py-1 font-medium ${step === n ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"}`}
+          >
+            <span className={`grid h-5 w-5 place-items-center rounded-full text-[11px] ${step === n ? "bg-white text-slate-900" : "bg-white text-slate-500"}`}>{n}</span>
+            {label}
+            {n === 2 && (preferred.length > 0 || exDish.length > 0) && (
+              <span className={`text-[11px] ${step === n ? "text-slate-300" : "text-slate-400"}`}>
+                ★{preferred.length} ✕{exDish.length}
+              </span>
+            )}
+          </button>
+        </li>
+      ))}
+    </ol>
+  );
+
+  if (step === 2) {
+    return (
+      <div className="space-y-5">
+        {steps}
+        <FoodSelector
+          dishes={dishes}
+          profile={profile}
+          prefs={{ focusTags, avoidTags, cuisines, excludeIngredients: exIng }}
+          clientName={clientName}
+          preferred={preferred}
+          excluded={exDish}
+          onChange={(p, e) => {
+            setPreferred(p);
+            setExDish(e);
+          }}
+        />
+        <div className="flex flex-wrap items-center gap-2 border-t border-slate-100 pt-4">
+          <button className="btn-primary" disabled={busy} onClick={() => onSubmit(collect())}>
+            {busy ? "Building plan…" : submitLabel}
+          </button>
+          <button className="btn-ghost" onClick={() => setStep(1)} disabled={busy}>
+            ← Back to settings
+          </button>
+          <span className="text-xs text-slate-400">Included foods are used often but still rotated; excluded foods never appear.</span>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-5">
+      {steps}
       <div className="grid gap-5 md:grid-cols-2">
         <div>
           <div className="label">Duration</div>
@@ -174,25 +254,11 @@ export default function ChartGenerator({
       </div>
 
       <div className="flex flex-wrap items-center gap-2 border-t border-slate-100 pt-4">
-        <button
-          className="btn-primary"
-          disabled={busy}
-          onClick={() =>
-            onSubmit({
-              days,
-              startDate,
-              cuisines,
-              nonVegDays,
-              focusTags,
-              avoidTags,
-              excludeIngredients: exIng,
-              excludeDishes: exDish,
-              includeEarlyMorning: em,
-              includeBedtime: bt,
-            })
-          }
-        >
-          {busy ? "Building plan…" : submitLabel}
+        <button className="btn-primary" disabled={busy} onClick={() => setStep(2)}>
+          Next: choose foods →
+        </button>
+        <button className="btn-secondary" disabled={busy} onClick={() => onSubmit(collect())}>
+          {busy ? "Building plan…" : `Skip and ${submitLabel.charAt(0).toLowerCase()}${submitLabel.slice(1)}`}
         </button>
         {onCancel && (
           <button className="btn-ghost" onClick={onCancel} disabled={busy}>

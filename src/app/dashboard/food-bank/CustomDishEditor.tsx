@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { Chip, ChipGroup, Modal, Toggle } from "@/components/foodbank/ui";
 import { computeDish, formatPortion, scaled } from "@/lib/foodbank/bank";
 import { INGREDIENT_MAP } from "@/lib/foodbank/bank";
+import { cookedNote } from "@/lib/foodbank/cooked";
 import { CUISINE_LABELS, NUTRIENT_KEYS, NUTRIENT_META, ROLE_LABELS, type Cuisine, type Dish, type DishRole, type DishTag, type Nutrients } from "@/lib/foodbank/types";
 import { DIET_TYPE_LABELS, MEAL_TIMES, MEAL_TIME_LABELS, type DietType, type MealTime } from "@/lib/types";
 
@@ -195,7 +196,10 @@ export default function CustomDishEditor({
                     const ing = INGREDIENT_MAP[k];
                     return (
                       <li key={k} className="flex items-center gap-2 px-3 py-1.5 text-sm">
-                        <span className="flex-1 text-slate-700">{ing?.name ?? k}</span>
+                        <span className="flex-1 text-slate-700">
+                          {ing?.name ?? k}
+                          {cookedNote(k, g) && <span className="ml-1 text-[11px] text-slate-400">(raw · {cookedNote(k, g)})</span>}
+                        </span>
                         <input type="number" min="0" step="1" className="input w-20 py-1 text-right" value={g} onChange={(e) => setIngredients({ ...ingredients, [k]: Number(e.target.value) })} aria-label={`${ing?.name} grams`} />
                         <span className="w-6 text-xs text-slate-400">{ing?.liquid ? "ml" : "g"}</span>
                         <button className="text-slate-300 hover:text-red-600" onClick={() => { const n = { ...ingredients }; delete n[k]; setIngredients(n); }} aria-label={`Remove ${ing?.name}`}>×</button>

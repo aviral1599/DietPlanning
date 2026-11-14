@@ -13,6 +13,9 @@ import { dayTotals, dishFitsProfile, mealTotals, type ChartDay, type PlanItem } 
 import type { PortalData } from "@/lib/foodbank/portal";
 import { DIET_TYPE_LABELS, MEAL_TIMES, MEAL_TIME_LABELS, type MealTime } from "@/lib/types";
 import { describeRequest } from "@/lib/foodbank/changes";
+import { Icon, KIND_STYLES } from "@/components/foodbank/CalendarIcons";
+import { dayActivity, dayTimeline, eventLabel, fmt12, mealTimeOn } from "@/lib/foodbank/schedule";
+import type { ChartEvent } from "@/lib/foodbank/engine";
 import RequestSheet from "./RequestSheet";
 
 type Tab = "today" | "plan" | "grocery" | "profile" | "requests";
@@ -186,20 +189,24 @@ export default function PortalApp({ initial }: { initial: PortalData }) {
             <DayTotalsCard day={today} index={index} targets={chart.targets} />
 
             <div className="space-y-3">
-              {MEAL_TIMES.filter((m) => today.meals[m]?.length).map((m) => (
+              {dayTimeline(today, chart.mealTimes).map((entry) =>
+                entry.type === "event" ? (
+                  <EventCard key={entry.event.uid} event={entry.event} />
+                ) : (
                 <MealCard
-                  key={m}
-                  meal={m}
-                  time={chart.mealTimes[m]}
-                  items={today.meals[m]}
+                  key={entry.meal}
+                  meal={entry.meal}
+                  time={entry.time}
+                  items={today.meals[entry.meal]}
                   index={index}
                   pendingUids={pendingUids}
                   choiceOf={(uid) => choices[`${today.day}:${uid}`]}
                   onChoose={(uid, c) => pickOption(today.day, uid, c)}
-                  onOpen={(item) => setDetail({ item, meal: m, day: today })}
-                  onAdd={() => setRequest({ item: null, meal: m, day: today })}
+                  onOpen={(item) => setDetail({ item, meal: entry.meal, day: today })}
+                  onAdd={() => setRequest({ item: null, meal: entry.meal, day: today })}
                 />
-              ))}
+                )
+              )}
             </div>
 
             {chart.notes && (
@@ -247,7 +254,7 @@ export default function PortalApp({ initial }: { initial: PortalData }) {
                         <div key={m} className="flex gap-3 px-4 py-2.5">
                           <div className="w-24 shrink-0">
                             <div className="text-xs font-semibold text-slate-700">{MEAL_TIME_LABELS[m]}</div>
-                            <div className="text-[11px] text-slate-400">{chart.mealTimes[m]}</div>
+                            <div className="text-[11px] text-slate-400">{fmt12(mealTimeOn(d, m, chart.mealTimes))}</div>
                           </div>
                           <div className="flex min-w-0 flex-1 flex-wrap gap-1.5">
                             {d.meals[m].map((it) => {
@@ -274,6 +281,20 @@ export default function PortalApp({ initial }: { initial: PortalData }) {
                           </div>
                         </div>
                       ))}
+                      {(d.events ?? []).length > 0 && (
+                        <div className="flex gap-3 px-4 py-2.5">
+                          <div className="w-24 shrink-0 text-xs font-semibold text-slate-700">Exercise and supplements</div>
+                          <div className="flex min-w-0 flex-1 flex-wrap gap-1.5">
+                            {(d.events ?? []).map((e) => (
+                              <span key={e.uid} className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs ${KIND_STYLES[e.kind].block}`}>
+                                <Icon name={e.kind} className="h-3 w-3" />
+                                {eventLabel(e)}
+                                <span className="opacity-60">· {fmt12(e.time)}</span>
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </details>
                 );
@@ -393,12 +414,38 @@ export default function PortalApp({ initial }: { initial: PortalData }) {
 
 function DayTotalsCard({ day, index, targets }: { day: ChartDay; index: Record<string, import("@/lib/foodbank/types").Dish>; targets: { kcal: number; protein: number; carbs: number; fat: number } }) {
   const t = dayTotals(day, index);
+  const a = dayActivity(day);
   return (
     <div className="card grid grid-cols-2 gap-3 p-4 sm:grid-cols-4">
       <Meter label="Energy" value={t.kcal} target={targets.kcal} unit=" kcal" />
       <Meter label="Protein" value={t.protein} target={targets.protein} unit=" g" mode="min" />
       <Meter label="Carbs" value={t.carbs} target={targets.carbs} unit=" g" mode="max" />
       <Meter label="Fat" value={t.fat} target={targets.fat} unit=" g" />
+      {(a.burned > 0 || a.waterMl > 0) && (
+        <div className="col-span-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500 sm:col-span-4">
+          {a.burned > 0 && <span>Exercise burns about <b className="text-slate-700">{a.burned} kcal</b> ({a.exerciseMin} min)</span>}
+          {a.waterMl > 0 && <span>Water <b className="text-slate-700">{(a.waterMl / 1000).toFixed(1)} L</b></span>}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function EventCard({ event }: { event: ChartEvent }) {
+  return (
+    <div className={`flex items-start gap-3 rounded-xl border px-4 py-3 ${KIND_STYLES[event.kind].block}`}>
+      <Icon name={event.kind} className="mt-0.5 h-4 w-4" />
+      <div className="min-w-0 flex-1">
+        <div className="flex flex-wrap items-baseline justify-between gap-x-3">
+          <span className="font-semibold">{event.kind === "water" ? `Drink ${event.ml ?? ""} ml water` : event.title}</span>
+          <span className="text-xs opacity-70">{fmt12(event.time)}</span>
+        </div>
+        <div className="text-xs opacity-80">
+          {event.kind === "exercise" && `${event.minutes} min · ${event.intensity ?? ""}`}
+          {event.kind === "supplement" && [event.dose, event.timing].filter(Boolean).join(" · ")}
+        </div>
+        {event.text && <p className="mt-1 text-sm opacity-90">{event.text}</p>}
+      </div>
     </div>
   );
 }
@@ -430,7 +477,7 @@ function MealCard({
       <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50/60 px-4 py-2">
         <div className="flex items-baseline gap-2">
           <span className="font-semibold text-slate-800">{MEAL_TIME_LABELS[meal]}</span>
-          {time && <span className="text-xs text-slate-400">{time}</span>}
+          {time && <span className="text-xs text-slate-400">{fmt12(time)}</span>}
         </div>
         <span className="text-xs tabular-nums text-slate-400">{Math.round(k)} kcal</span>
       </div>

@@ -53,11 +53,35 @@ export interface PlanItem {
 
 export type DayMeals = Record<MealTime, PlanItem[]>;
 
+/** Non-food items on the calendar. */
+export type EventKind = "exercise" | "supplement" | "water" | "note";
+export type Intensity = "light" | "moderate" | "vigorous";
+
+export interface ChartEvent {
+  uid: string;
+  kind: EventKind;
+  title: string;
+  time: string; // "HH:MM"
+  minutes: number;
+  /** Shared by every copy of a recurring event. */
+  series?: string;
+  intensity?: Intensity; // exercise
+  kcal?: number; // exercise: estimated energy burned (informational only)
+  dose?: string; // supplement
+  timing?: string; // supplement: with food, empty stomach …
+  ml?: number; // water
+  text?: string; // note / extra instructions
+}
+
 export interface ChartDay {
   day: number; // 0-based index in the chart
   date: string; // ISO yyyy-mm-dd
   meals: DayMeals;
   note?: string;
+  /** Exercise, supplements, water and notes scheduled on this day. */
+  events?: ChartEvent[];
+  /** Per-day meal times that differ from the chart-wide `mealTimes`. */
+  times?: Partial<Record<MealTime, string>>;
 }
 
 export interface ChartPrefs {
@@ -69,6 +93,8 @@ export interface ChartPrefs {
   excludeIngredients: string[];
   focusTags: DishTag[]; // soft boost
   avoidTags: DishTag[]; // hard exclude
+  /** Dishes the nutritionist picked for this client — strongly preferred (still rotated). */
+  preferDishes?: string[];
   includeEarlyMorning: boolean;
   includeBedtime: boolean;
   seed: number;
@@ -312,6 +338,7 @@ interface Ctx {
   uses: Map<string, number[]>; // dishId -> day indices
   rng: () => number;
   excludedIngredients: Set<string>;
+  preferred: Set<string>;
   dayMains?: Set<string>; // main ingredients already on today's plate
 }
 
@@ -350,7 +377,8 @@ function profileAllows(d: Dish, ctx: Ctx): boolean {
   if (hasAllergen(d, profile.allergens)) return false;
   if (avoidsAny(d, profile)) return false;
   if (prefs.excludeDishes.includes(d.id)) return false;
-  if (prefs.avoidTags.some((t) => d.allTags.includes(t))) return false;
+  // An explicitly chosen dish overrides the "avoid" tags (not allergies or diet).
+  if (!ctx.preferred.has(d.id) && prefs.avoidTags.some((t) => d.allTags.includes(t))) return false;
   if (ctx.excludedIngredients.size && Object.keys(d.ingredients).some((k) => ctx.excludedIngredients.has(k))) return false;
   return true;
 }
@@ -423,6 +451,7 @@ function score(d: Dish, day: number, ctx: Ctx, anchor: Dish | null, meal: MealTi
   if (main && ctx.dayMains?.has(main) && d.freq !== "daily") s -= 16;
 
   for (const t of prefs.focusTags) if (d.allTags.includes(t)) s += 5;
+  if (ctx.preferred.has(d.id)) s += 22;
 
   if (prefs.cuisines.length) {
     s += prefs.cuisines.includes(d.cuisine) ? 10 : d.cuisine === "pan-indian" ? 3 : -7;
@@ -983,6 +1012,7 @@ function makeCtx(
     uses: new Map(),
     rng: mulberry32((prefs.seed || 1) + seedOffset),
     excludedIngredients: new Set(prefs.excludeIngredients),
+    preferred: new Set(prefs.preferDishes ?? []),
   };
 }
 
@@ -1090,6 +1120,90 @@ export function suggestSwaps(
     out.push({ dishId: d.id, units, kcal: Math.round(n.kcal), protein: Math.round(n.protein * 10) / 10, reason, s });
   }
   return out.sort((a, b) => b.s - a.s).slice(0, limit).map(({ s: _s, ...rest }) => rest);
+}
+
+// ---- food suggestions (pre-chart food selection) -----------------------------
+
+const TAG_REASON: Partial<Record<DishTag, string>> = {
+  "ir-friendly": "Insulin-friendly",
+  "low-gi": "Low GI",
+  millet: "Millet",
+  "high-fibre": "High fibre",
+  "high-protein": "High protein",
+  "iron-rich": "Iron-rich",
+  "calcium-rich": "Calcium-rich",
+  probiotic: "Probiotic",
+  "low-cal": "Low calorie",
+  traditional: "Traditional",
+  quick: "Quick to cook",
+  budget: "Budget-friendly",
+};
+
+export interface FoodRelevance {
+  score: number;
+  reasons: string[];
+  cautions: string[];
+}
+
+/**
+ * How well a dish suits this client, with plain-language reasons — used to
+ * suggest foods before a chart is generated. Mirrors the planner's scoring.
+ */
+export function foodRelevance(d: Dish, profile: ChartProfile, prefs: Partial<ChartPrefs>, conditionLabel: (c: DietType) => string): FoodRelevance {
+  let s = 0;
+  const reasons: string[] = [];
+  const cautions: string[] = [];
+  const good = (d.goodFor ?? []).filter((c) => has(profile, c));
+  if (good.length) {
+    s += 8;
+    reasons.push(`Good for ${good.map(conditionLabel).join(", ")}`);
+  }
+  if (insulinFocus(profile)) {
+    const carbCarrier = ["staple", "breakfast", "one-pot", "snack", "fruit"].includes(d.role);
+    if (d.allTags.includes("ir-friendly")) s += 4;
+    else if (carbCarrier) {
+      s -= 6;
+      cautions.push("Carb-heavy for insulin resistance");
+    }
+  }
+  if (glycemic(profile)) {
+    if (d.gi === "high") {
+      s -= 12;
+      cautions.push("High GI");
+    } else if (d.gi === "low") s += 3;
+    if (d.allTags.includes("heavy")) {
+      s -= 8;
+      cautions.push("Heavy");
+    }
+  }
+  if (has(profile, "hypertension") && d.perUnit.sodium * d.unit.default > 500) {
+    s -= 6;
+    cautions.push("High sodium");
+  }
+  if (has(profile, "renal") && d.allTags.includes("high-protein")) {
+    s -= 12;
+    cautions.push("High protein (renal)");
+  }
+  if (has(profile, "weight-loss") && d.perUnit.kcal * d.unit.default > 400) {
+    s -= 4;
+    cautions.push("Energy-dense");
+  }
+  if (d.allTags.includes("fried")) {
+    s -= 6;
+    cautions.push("Fried");
+  }
+  const focus = new Set(prefs.focusTags ?? []);
+  for (const t of d.allTags) {
+    if (focus.has(t)) s += 5;
+    const label = TAG_REASON[t];
+    if (label && (focus.has(t) || (t === "low-gi" && glycemic(profile)) || (t === "ir-friendly" && insulinFocus(profile)))) {
+      if (!reasons.includes(label)) reasons.push(label);
+    }
+  }
+  if (prefs.cuisines?.length) s += prefs.cuisines.includes(d.cuisine) ? 5 : d.cuisine === "pan-indian" ? 1 : -3;
+  if (d.freq === "occasional") s -= 2;
+  if (profile.incomeGroup === "low") s -= (d.cost - 1) * 3;
+  return { score: s, reasons: reasons.slice(0, 3), cautions: cautions.slice(0, 2) };
 }
 
 /** Can this profile eat this dish? (used to filter the food-bank picker) */

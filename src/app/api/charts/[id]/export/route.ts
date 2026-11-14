@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db";
 import { guard, jsonError } from "@/lib/api";
 import { expandCustomRows, formatPortion } from "@/lib/foodbank/bank";
 import { dayTotals, groceryList } from "@/lib/foodbank/engine";
+import { eventLine } from "@/lib/foodbank/schedule";
 import { ownedChart, toChartDTO } from "@/lib/foodbank/server";
 import { MEAL_TIMES, MEAL_TIME_LABELS } from "@/lib/types";
 
@@ -33,15 +34,21 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
         ws.addRow([
           `${MEAL_TIME_LABELS[m]} ${chart.mealTimes[m] ?? ""}`.trim(),
           ...week.map((d) =>
-            (d.meals[m] ?? [])
-              .map((it) =>
+            [
+              d.times?.[m] && d.meals[m]?.length ? `(at ${d.times[m]})` : "",
+              ...(d.meals[m] ?? []).map((it) =>
                 [{ dishId: it.dishId, units: it.units }, ...(it.alts ?? [])]
                   .map((c) => (index[c.dishId] ? `${index[c.dishId].name} — ${formatPortion(index[c.dishId], c.units)}` : "?"))
                   .join(" OR ")
-              )
+              ),
+            ]
+              .filter(Boolean)
               .join("\n")
           ),
         ]);
+      }
+      if (week.some((d) => d.events?.length)) {
+        ws.addRow(["Exercise and supplements", ...week.map((d) => (d.events ?? []).map(eventLine).join("\n"))]);
       }
       for (const [label, key] of [["Energy (kcal)", "kcal"], ["Protein (g)", "protein"], ["Carbs (g)", "carbs"], ["Fat (g)", "fat"], ["Fibre (g)", "fibre"], ["Sodium (mg)", "sodium"]] as const) {
         ws.addRow([label, ...week.map((d) => Math.round(dayTotals(d, index)[key]))]);
