@@ -52,6 +52,9 @@ export default function MealEditor({
   onChange,
   onResolve,
   onClose,
+  onCopyTo,
+  pasteLabel,
+  onPaste,
 }: {
   day: ChartDay;
   meal: MealTime;
@@ -68,6 +71,11 @@ export default function MealEditor({
   onChange: (items: PlanItem[]) => void;
   onResolve: (id: string, decision: "approve" | "reject", note: string) => void;
   onClose: () => void;
+  /** Open the "copy to other days / meals" dialog for these items. */
+  onCopyTo?: (items: PlanItem[]) => void;
+  /** What's on the clipboard (e.g. "Poha + 1 more"), if anything. */
+  pasteLabel?: string | null;
+  onPaste?: () => void;
 }) {
   const items = day.meals[meal] ?? [];
   const [swapFor, setSwapFor] = useState<string | null>(null);
@@ -115,6 +123,20 @@ export default function MealEditor({
           ×
         </button>
       </div>
+      {(onCopyTo || (pasteLabel && onPaste)) && (
+        <div className="flex flex-wrap items-center gap-2 border-b border-slate-100 px-4 py-2">
+          {onCopyTo && items.length > 0 && (
+            <button className="btn-secondary px-2.5 py-1 text-xs" onClick={() => onCopyTo(items)} title="Copy this meal to other days or meals">
+              ⧉ Copy meal to…
+            </button>
+          )}
+          {pasteLabel && onPaste && (
+            <button className="btn-secondary px-2.5 py-1 text-xs" onClick={onPaste} title="Paste copied dishes into this meal (⌘V)">
+              📋 Paste {pasteLabel}
+            </button>
+          )}
+        </div>
+      )}
 
       <div className="flex-1 space-y-4 overflow-y-auto px-4 py-3">
         {target > 0 && <Meter label="Meal energy" value={tot.kcal} target={target} unit=" kcal" />}
@@ -154,6 +176,16 @@ export default function MealEditor({
                     <div className="font-medium text-slate-800">{d.name}</div>
                     <div className="text-[11px]"><MacroLine kcal={n.kcal} protein={n.protein} carbs={n.carbs} fat={n.fat} /></div>
                   </button>
+                  {onCopyTo && (
+                    <button
+                      className="rounded-md px-1.5 text-sm text-slate-300 hover:text-slate-600"
+                      onClick={() => onCopyTo([it])}
+                      title="Copy this dish to other days or meals"
+                      aria-label={`Copy ${d.name} to other days or meals`}
+                    >
+                      ⧉
+                    </button>
+                  )}
                   <button
                     className={`rounded-md px-1.5 text-sm ${it.locked ? "text-brand-700" : "text-slate-300 hover:text-slate-600"}`}
                     onClick={() => update(it.uid, { locked: !it.locked })}

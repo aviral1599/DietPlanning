@@ -10,6 +10,8 @@ import { MEAL_TIMES, MEAL_TIME_LABELS, type MealTime } from "@/lib/types";
 export interface CellRef {
   day: number;
   meal: MealTime;
+  /** Set when a single dish in the cell is selected (for copy). */
+  uid?: string;
 }
 
 export default function WeekGrid({
@@ -113,8 +115,16 @@ export default function WeekGrid({
                         return (
                           <div
                             key={it.uid}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onSelect({ day: d.day, meal: m, uid: it.uid });
+                            }}
                             className={`rounded-md border px-1.5 py-1 leading-tight ${
-                              it.by === "client" ? "border-blue-200 bg-blue-50" : "border-slate-200 bg-white"
+                              isSel && selected?.uid === it.uid
+                                ? "border-brand-500 bg-white ring-2 ring-brand-400"
+                                : it.by === "client"
+                                  ? "border-blue-200 bg-blue-50"
+                                  : "border-slate-200 bg-white"
                             }`}
                           >
                             <div className="flex items-start gap-1">
