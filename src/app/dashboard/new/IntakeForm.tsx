@@ -5,11 +5,12 @@ import { useRouter } from "next/navigation";
 import {
   ACTIVITY_OPTIONS,
   DIET_PREFERENCE_OPTIONS,
-  DIET_TYPE_OPTIONS,
   INCOME_OPTIONS,
   SEX_OPTIONS,
 } from "@/lib/ui-options";
 import GlycemicFields from "@/components/GlycemicFields";
+import ConditionPicker from "@/components/ConditionPicker";
+import { primaryCondition, toggleCondition } from "@/lib/conditions";
 import { computeAssessment, defaultSettings } from "@/lib/nutrition";
 import type { CalcResults, DietType, GlycemicLabs, GlycemicStatus, SubjectInfo } from "@/lib/types";
 
@@ -36,7 +37,9 @@ export default function IntakeForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [heightCm, setHeightCm] = useState("");
-  const [dietType, setDietType] = useState<DietType>("general");
+  const [conditions, setConditions] = useState<DietType[]>(["general"]);
+  const dietType = primaryCondition(conditions);
+  const diabetic = conditions.includes("diabetes");
   const [glycemicStatus, setGlycemicStatus] = useState<GlycemicStatus>("none");
   const [labs, setLabs] = useState<GlycemicLabs>({});
   const [form, setForm] = useState<Record<string, unknown>>({});
@@ -53,18 +56,19 @@ export default function IntakeForm() {
     incomeGroup: "middle",
     allergies: "",
     dietType,
+    conditions,
     dietPreference: "vegetarian",
     objective: "",
-    glycemicStatus: dietType === "diabetes" ? "none" : dietType === "insulin-resistance" && glycemicStatus === "none" ? "insulin-resistance" : glycemicStatus,
+    glycemicStatus: diabetic ? "none" : conditions.includes("insulin-resistance") && glycemicStatus === "none" ? "insulin-resistance" : glycemicStatus,
     labs,
   } satisfies SubjectInfo;
   if (subj.age > 0 && subj.heightCm >= 50 && subj.weightKg >= 2) {
     estimate = computeAssessment(subj, defaultSettings(subj));
   }
 
-  function changeDietType(v: DietType) {
-    setDietType(v);
-    if (v === "insulin-resistance" && glycemicStatus === "none") setGlycemicStatus("insulin-resistance");
+  function changeConditions(next: DietType[]) {
+    setConditions(next);
+    if (next.includes("insulin-resistance") && glycemicStatus === "none") setGlycemicStatus("insulin-resistance");
   }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -82,9 +86,10 @@ export default function IntakeForm() {
       incomeGroup: fd.get("incomeGroup"),
       allergies: fd.get("allergies"),
       dietType,
+      conditions,
       dietPreference: fd.get("dietPreference"),
       objective: fd.get("objective"),
-      glycemicStatus: dietType === "diabetes" ? "none" : glycemicStatus,
+      glycemicStatus: diabetic ? "none" : glycemicStatus,
       labs,
     };
     try {
@@ -177,25 +182,20 @@ export default function IntakeForm() {
               ))}
             </select>
           </Field>
-          <Field label="Condition / goal">
-            <select name="dietType" className="input" value={dietType} onChange={(e) => changeDietType(e.target.value as DietType)}>
-              {DIET_TYPE_OPTIONS.map((o) => (
-                <option key={o.value} value={o.value}>
-                  {o.label}
-                </option>
-              ))}
-            </select>
-          </Field>
+        </div>
+
+        <div className="mt-5">
+          <ConditionPicker value={conditions} onChange={changeConditions} />
         </div>
 
         <div className="mt-4">
           <GlycemicFields
-            dietType={dietType}
+            conditions={conditions}
             status={glycemicStatus}
             labs={labs}
             onStatus={setGlycemicStatus}
             onLabs={setLabs}
-            onSetDiabetes={() => changeDietType("diabetes")}
+            onSetDiabetes={() => changeConditions(toggleCondition(conditions, "diabetes"))}
           />
         </div>
 

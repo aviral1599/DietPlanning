@@ -152,7 +152,10 @@ export interface SubjectInfo {
   activityLevel: ActivityLevel;
   incomeGroup: IncomeGroup;
   allergies: string;
+  /** Primary condition (first of `conditions` by clinical priority). */
   dietType: DietType;
+  /** Every condition / goal selected for the client (never empty). */
+  conditions: DietType[];
   dietPreference: DietPreference;
   objective: string;
   /** Insulin resistance / prediabetes flag (applies on top of dietType). */

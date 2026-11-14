@@ -29,14 +29,14 @@ const TONE_CLASS: Record<LabTone, string> = {
  * values. Interprets the labs live and offers to apply what they suggest.
  */
 export default function GlycemicFields({
-  dietType,
+  conditions,
   status,
   labs,
   onStatus,
   onLabs,
   onSetDiabetes,
 }: {
-  dietType: DietType;
+  conditions: DietType[];
   status: GlycemicStatus;
   labs: GlycemicLabs;
   onStatus: (s: GlycemicStatus) => void;
@@ -45,7 +45,7 @@ export default function GlycemicFields({
 }) {
   const id = useId();
   const interp = interpretLabs(labs);
-  const isDiabetes = dietType === "diabetes";
+  const isDiabetes = conditions.includes("diabetes");
   const suggestion =
     interp.suggested && interp.suggested !== "diabetes" && interp.suggested !== "none" && interp.suggested !== status && !isDiabetes
       ? interp.suggested
@@ -57,7 +57,7 @@ export default function GlycemicFields({
         <div id={`${id}-label`} className="text-sm font-semibold text-slate-800">
           Insulin resistance / prediabetes
         </div>
-        <span className="text-xs text-slate-500">Shapes food choices on top of the main condition</span>
+        <span className="text-xs text-slate-500">Shapes food choices on top of the selected conditions</span>
       </div>
 
       {isDiabetes ? (
@@ -85,8 +85,8 @@ export default function GlycemicFields({
             ))}
           </div>
           <p className="mt-1.5 text-xs text-slate-500">{STATUS_HELP[status]}</p>
-          {dietType === "insulin-resistance" && status === "none" && (
-            <p className="mt-1 text-xs text-amber-700">The main condition is insulin resistance, so this will be saved as “Insulin resistance”.</p>
+          {conditions.includes("insulin-resistance") && status === "none" && (
+            <p className="mt-1 text-xs text-amber-700">Insulin resistance is selected as a condition, so this will be saved as “Insulin resistance”.</p>
           )}
         </>
       )}

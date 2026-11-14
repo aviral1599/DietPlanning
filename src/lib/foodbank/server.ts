@@ -32,6 +32,7 @@ export async function loadDishPool(coachId: string): Promise<Dish[]> {
 export function profileFromSubject(s: SubjectInfo): ChartProfile {
   return {
     dietType: s.dietType,
+    conditions: s.conditions,
     dietPreference: s.dietPreference,
     allergens: parseAllergies(s.allergies),
     incomeGroup: s.incomeGroup,

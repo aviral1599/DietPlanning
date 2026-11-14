@@ -13,12 +13,13 @@ import {
   energySuggestions,
 } from "@/lib/nutrition";
 import GlycemicFields from "@/components/GlycemicFields";
+import ConditionPicker from "@/components/ConditionPicker";
+import { primaryCondition, subjectConditions, toggleCondition } from "@/lib/conditions";
 import { hasLabs, interpretLabs } from "@/lib/glycemic";
 import {
   ACTIVITY_OPTIONS,
   BMR_METHOD_OPTIONS,
   DIET_PREFERENCE_OPTIONS,
-  DIET_TYPE_OPTIONS,
   IBW_METHOD_OPTIONS,
   INCOME_OPTIONS,
   SEX_OPTIONS,
@@ -110,7 +111,8 @@ export default function AssessmentTab({
 
   const gStatus = subject.glycemicStatus ?? "none";
   const labInterp = interpretLabs(subject.labs ?? {});
-  const showGlycemic = (gStatus !== "none" && subject.dietType !== "diabetes") || hasLabs(subject.labs);
+  const diabetic = subjectConditions(subject).includes("diabetes");
+  const showGlycemic = (gStatus !== "none" && !diabetic) || hasLabs(subject.labs);
 
   return (
     <div className="space-y-6">
@@ -119,7 +121,7 @@ export default function AssessmentTab({
           <div>
             <div className="text-xs font-semibold uppercase tracking-wide text-amber-700">Blood sugar</div>
             <div className="text-sm font-semibold text-slate-900">
-              {subject.dietType === "diabetes" ? "Diabetes" : GLYCEMIC_STATUS_LABELS[gStatus]}
+              {diabetic ? "Diabetes" : GLYCEMIC_STATUS_LABELS[gStatus]}
             </div>
           </div>
           <div className="flex flex-wrap gap-1.5">
@@ -134,7 +136,7 @@ export default function AssessmentTab({
               </span>
             ))}
           </div>
-          {gStatus !== "none" && subject.dietType !== "diabetes" && (
+          {gStatus !== "none" && !diabetic && (
             <p className="w-full text-xs text-slate-600">
               Diet charts for this client favour insulin-friendly, low-GI dishes, pair every carbohydrate with protein or fibre, and leave out sweets and juices.
             </p>
@@ -369,17 +371,23 @@ export default function AssessmentTab({
               <L label="Diet preference">
                 <Select value={s.dietPreference} opts={DIET_PREFERENCE_OPTIONS} onChange={(v) => upd("dietPreference", v)} />
               </L>
-              <L label="Condition / goal">
-                <Select value={s.dietType} opts={DIET_TYPE_OPTIONS} onChange={(v) => upd("dietType", v)} />
-              </L>
+              <div className="sm:col-span-3">
+                <ConditionPicker
+                  value={subjectConditions(s)}
+                  onChange={(next) => changeSubject({ ...s, conditions: next, dietType: primaryCondition(next) })}
+                />
+              </div>
               <div className="sm:col-span-3">
                 <GlycemicFields
-                  dietType={s.dietType}
+                  conditions={subjectConditions(s)}
                   status={s.glycemicStatus ?? "none"}
                   labs={s.labs ?? {}}
                   onStatus={(v) => changeSubject({ ...s, glycemicStatus: v })}
                   onLabs={(v) => setS((p) => ({ ...p, labs: v }))}
-                  onSetDiabetes={() => changeSubject({ ...s, dietType: "diabetes" as DietType })}
+                  onSetDiabetes={() => {
+                    const next = toggleCondition(subjectConditions(s), "diabetes");
+                    changeSubject({ ...s, conditions: next, dietType: primaryCondition(next) });
+                  }}
                 />
               </div>
               <L label="Allergies">

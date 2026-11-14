@@ -34,8 +34,9 @@ export function allocateExchanges(
   const pref = subject.dietPreference;
   const U = EXCHANGE_UNITS;
 
+  const conds = subject.conditions?.length ? subject.conditions : [diet];
   const isDiabetic =
-    diet === "weight-loss" || isGlycemicConcern(diet, subject.glycemicStatus);
+    conds.includes("weight-loss") || isGlycemicConcern(conds, subject.glycemicStatus);
 
   const alloc: Record<FoodGroup, number> = {
     CEREALS: 0,
@@ -66,7 +67,7 @@ export function allocateExchanges(
 
   // 4. Milk — 2 for adults; 3 for pregnancy/lactation; 0 for vegan.
   if (pref === "vegan") alloc.MILK = 0;
-  else if (diet === "pregnancy" || diet === "lactation") alloc.MILK = 3;
+  else if (conds.includes("pregnancy") || conds.includes("lactation")) alloc.MILK = 3;
   else alloc.MILK = 2;
 
   // 5. Meat / egg — by preference.

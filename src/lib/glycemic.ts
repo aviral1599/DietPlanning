@@ -114,51 +114,40 @@ export function interpretLabs(labs: GlycemicLabs): LabInterpretation {
   return { findings, suggested, homaIr: homa };
 }
 
+const asList = (c: DietType | DietType[]): DietType[] => (Array.isArray(c) ? c : [c]);
+
 /**
  * Every condition that should shape food choices for this client. The
- * glycaemic flag adds "insulin-resistance" on top of the main condition
+ * glycaemic flag adds "insulin-resistance" on top of the selected conditions
  * (diabetes already covers it).
  */
-export function conditionsOf(dietType: DietType, glycemicStatus?: GlycemicStatus | null): DietType[] {
-  const out: DietType[] = [dietType];
-  if (glycemicStatus && glycemicStatus !== "none" && dietType !== "diabetes" && dietType !== "insulin-resistance") {
+export function conditionsOf(conds: DietType | DietType[], glycemicStatus?: GlycemicStatus | null): DietType[] {
+  const out = [...asList(conds)];
+  if (glycemicStatus && glycemicStatus !== "none" && !out.includes("diabetes") && !out.includes("insulin-resistance")) {
     out.push("insulin-resistance");
   }
   return out;
 }
 
 /** Needs blood-sugar-friendly (low-GI, carb-controlled) planning. */
-export function isGlycemicConcern(dietType: DietType, glycemicStatus?: GlycemicStatus | null): boolean {
+export function isGlycemicConcern(conds: DietType | DietType[], glycemicStatus?: GlycemicStatus | null): boolean {
+  const list = asList(conds);
   return (
-    dietType === "diabetes" ||
-    dietType === "insulin-resistance" ||
-    dietType === "pcos" ||
+    list.some((c) => c === "diabetes" || c === "insulin-resistance" || c === "pcos") ||
     (!!glycemicStatus && glycemicStatus !== "none")
   );
 }
 
-/** Short label for headers, e.g. "PCOS + Prediabetes". */
-export function conditionLabel(
-  dietLabel: string,
-  dietType: DietType,
-  glycemicStatus?: GlycemicStatus | null
-): string {
-  if (!glycemicStatus || glycemicStatus === "none" || dietType === "diabetes") return dietLabel;
-  const g = glycemicStatus === "prediabetes" ? "Prediabetes" : "Insulin resistance";
-  if (dietType === "insulin-resistance") return g;
-  return `${dietLabel} + ${g}`;
-}
-
-/** One-line text for exports: "Prediabetes — HbA1c 6.1% (prediabetes range …); …". Empty if nothing to report. */
-export function glycemicSummary(s: { dietType: DietType; glycemicStatus?: GlycemicStatus | null; labs?: GlycemicLabs | null }): string {
-  const status =
-    s.dietType === "diabetes"
-      ? ""
-      : s.glycemicStatus === "prediabetes"
-        ? "Prediabetes"
-        : s.glycemicStatus === "insulin-resistance"
-          ? "Insulin resistance"
-          : "";
+/** One-line text for exports: "Prediabetes — HbA1c 6.1%: prediabetes range …; …". Empty if nothing to report. */
+export function glycemicSummary(s: { dietType: DietType; conditions?: DietType[]; glycemicStatus?: GlycemicStatus | null; labs?: GlycemicLabs | null }): string {
+  const diabetic = s.dietType === "diabetes" || !!s.conditions?.includes("diabetes");
+  const status = diabetic
+    ? ""
+    : s.glycemicStatus === "prediabetes"
+      ? "Prediabetes"
+      : s.glycemicStatus === "insulin-resistance"
+        ? "Insulin resistance"
+        : "";
   const labs = interpretLabs(s.labs ?? {}).findings.map((f) => `${f.label} ${f.value}: ${f.band}`).join("; ");
   return [status, labs].filter(Boolean).join(" — ");
 }

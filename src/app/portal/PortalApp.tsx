@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { conditionLabel, interpretLabs } from "@/lib/glycemic";
+import { interpretLabs } from "@/lib/glycemic";
+import { conditionsLabel, subjectConditions } from "@/lib/conditions";
 import { useRouter } from "next/navigation";
 import DishDetail from "@/components/foodbank/DishDetail";
 import GroceryList from "@/components/foodbank/GroceryList";
@@ -459,7 +460,7 @@ function ProfileView({ data }: { data: PortalData }) {
       <div className="card p-4">
         <h2 className="text-lg font-bold text-slate-900">{s.clientName}</h2>
         <p className="text-sm text-slate-500">
-          {s.age} years · {s.sex} · {s.heightCm} cm · {s.weightKg} kg · {conditionLabel(DIET_TYPE_LABELS[s.dietType], s.dietType, s.glycemicStatus)} · <span className="capitalize">{s.dietPreference}</span>
+          {s.age} years · {s.sex} · {s.heightCm} cm · {s.weightKg} kg · {conditionsLabel(subjectConditions(s), s.glycemicStatus)} · <span className="capitalize">{s.dietPreference}</span>
         </p>
         {labFindings.length > 0 && (
           <div className="mt-3 flex flex-wrap gap-1.5">

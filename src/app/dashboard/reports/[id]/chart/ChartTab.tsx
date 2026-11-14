@@ -34,6 +34,7 @@ export default function ChartTab({ reportId, subject }: { reportId: string; subj
   const profile: ChartProfile = useMemo(
     () => ({
       dietType: subject.dietType,
+      conditions: subject.conditions,
       dietPreference: subject.dietPreference,
       allergens: parseAllergies(subject.allergies),
       incomeGroup: subject.incomeGroup,
@@ -363,7 +364,7 @@ export default function ChartTab({ reportId, subject }: { reportId: string; subj
             value={summary.avg.protein}
             target={chart.targets.protein}
             unit=" g"
-            mode={subject.dietType === "renal" ? "max" : "min"}
+            mode={subject.conditions?.includes("renal") || subject.dietType === "renal" ? "max" : "min"}
           />
           <Meter label="Carbs" value={summary.avg.carbs} target={chart.targets.carbs} unit=" g" mode="max" />
           <Meter label="Fat" value={summary.avg.fat} target={chart.targets.fat} unit=" g" />
@@ -371,7 +372,7 @@ export default function ChartTab({ reportId, subject }: { reportId: string; subj
           <Meter
             label="Sodium"
             value={summary.avg.sodium}
-            target={subject.dietType === "hypertension" || subject.dietType === "renal" ? 1500 : 2000}
+            target={(["hypertension", "renal"] as const).some((c) => subject.dietType === c || subject.conditions?.includes(c)) ? 1500 : 2000}
             unit=" mg"
             mode="max"
           />

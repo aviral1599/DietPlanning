@@ -5,16 +5,18 @@ import { buildTargets, dayTotals, defaultPrefs, generateChart, groceryList, prof
 import { MEAL_TIMES, MEAL_TIME_LABELS, SubjectInfo } from "../../src/lib/types";
 
 const cases: SubjectInfo[] = [
-  { clientName: "PCOS veg", age: 28, sex: "female", heightCm: 160, weightKg: 70, activityLevel: "sedentary", incomeGroup: "middle", allergies: "", dietType: "pcos", dietPreference: "vegetarian", objective: "", glycemicStatus: "none", labs: {} },
-  { clientName: "Diabetic non-veg", age: 45, sex: "male", heightCm: 172, weightKg: 85, activityLevel: "moderate", incomeGroup: "middle", allergies: "", dietType: "diabetes", dietPreference: "non-vegetarian", objective: "", glycemicStatus: "none", labs: {} },
-  { clientName: "Pregnancy veg", age: 30, sex: "female", heightCm: 158, weightKg: 62, activityLevel: "sedentary", incomeGroup: "high", allergies: "", dietType: "pregnancy", dietPreference: "vegetarian", objective: "", glycemicStatus: "none", labs: {} },
-  { clientName: "Wt-gain egg", age: 24, sex: "male", heightCm: 178, weightKg: 58, activityLevel: "heavy", incomeGroup: "middle", allergies: "peanut", dietType: "weight-gain", dietPreference: "eggetarian", objective: "", glycemicStatus: "none", labs: {} },
-  { clientName: "Wt-loss vegan", age: 35, sex: "female", heightCm: 155, weightKg: 72, activityLevel: "sedentary", incomeGroup: "high", allergies: "gluten", dietType: "weight-loss", dietPreference: "vegan", objective: "", glycemicStatus: "none", labs: {} },
-  { clientName: "Jain HTN", age: 58, sex: "male", heightCm: 168, weightKg: 78, activityLevel: "sedentary", incomeGroup: "middle", allergies: "", dietType: "hypertension", dietPreference: "jain", objective: "", glycemicStatus: "none", labs: {} },
-  { clientName: "Renal veg", age: 62, sex: "male", heightCm: 165, weightKg: 64, activityLevel: "sedentary", incomeGroup: "middle", allergies: "", dietType: "renal", dietPreference: "vegetarian", objective: "", glycemicStatus: "none", labs: {} },
-  { clientName: "Low-income general", age: 32, sex: "female", heightCm: 152, weightKg: 50, activityLevel: "heavy", incomeGroup: "low", allergies: "", dietType: "general", dietPreference: "vegetarian", objective: "", glycemicStatus: "none", labs: {} },
-  { clientName: "Prediabetes veg", age: 41, sex: "male", heightCm: 170, weightKg: 82, activityLevel: "sedentary", incomeGroup: "middle", allergies: "", dietType: "insulin-resistance", dietPreference: "vegetarian", objective: "", glycemicStatus: "prediabetes", labs: { hba1c: 6.1, fastingGlucose: 112 } },
-  { clientName: "PCOS + insulin resistance non-veg", age: 27, sex: "female", heightCm: 158, weightKg: 68, activityLevel: "moderate", incomeGroup: "high", allergies: "", dietType: "pcos", dietPreference: "non-vegetarian", objective: "", glycemicStatus: "insulin-resistance", labs: { fastingGlucose: 94, fastingInsulin: 14 } },
+  { clientName: "PCOS veg", age: 28, sex: "female", heightCm: 160, weightKg: 70, activityLevel: "sedentary", incomeGroup: "middle", allergies: "", dietType: "pcos", conditions: ["pcos"], dietPreference: "vegetarian", objective: "", glycemicStatus: "none", labs: {} },
+  { clientName: "Diabetic non-veg", age: 45, sex: "male", heightCm: 172, weightKg: 85, activityLevel: "moderate", incomeGroup: "middle", allergies: "", dietType: "diabetes", conditions: ["diabetes"], dietPreference: "non-vegetarian", objective: "", glycemicStatus: "none", labs: {} },
+  { clientName: "Pregnancy veg", age: 30, sex: "female", heightCm: 158, weightKg: 62, activityLevel: "sedentary", incomeGroup: "high", allergies: "", dietType: "pregnancy", conditions: ["pregnancy"], dietPreference: "vegetarian", objective: "", glycemicStatus: "none", labs: {} },
+  { clientName: "Wt-gain egg", age: 24, sex: "male", heightCm: 178, weightKg: 58, activityLevel: "heavy", incomeGroup: "middle", allergies: "peanut", dietType: "weight-gain", conditions: ["weight-gain"], dietPreference: "eggetarian", objective: "", glycemicStatus: "none", labs: {} },
+  { clientName: "Wt-loss vegan", age: 35, sex: "female", heightCm: 155, weightKg: 72, activityLevel: "sedentary", incomeGroup: "high", allergies: "gluten", dietType: "weight-loss", conditions: ["weight-loss"], dietPreference: "vegan", objective: "", glycemicStatus: "none", labs: {} },
+  { clientName: "Jain HTN", age: 58, sex: "male", heightCm: 168, weightKg: 78, activityLevel: "sedentary", incomeGroup: "middle", allergies: "", dietType: "hypertension", conditions: ["hypertension"], dietPreference: "jain", objective: "", glycemicStatus: "none", labs: {} },
+  { clientName: "Renal veg", age: 62, sex: "male", heightCm: 165, weightKg: 64, activityLevel: "sedentary", incomeGroup: "middle", allergies: "", dietType: "renal", conditions: ["renal"], dietPreference: "vegetarian", objective: "", glycemicStatus: "none", labs: {} },
+  { clientName: "Low-income general", age: 32, sex: "female", heightCm: 152, weightKg: 50, activityLevel: "heavy", incomeGroup: "low", allergies: "", dietType: "general", conditions: ["general"], dietPreference: "vegetarian", objective: "", glycemicStatus: "none", labs: {} },
+  { clientName: "Prediabetes veg", age: 41, sex: "male", heightCm: 170, weightKg: 82, activityLevel: "sedentary", incomeGroup: "middle", allergies: "", dietType: "insulin-resistance", conditions: ["insulin-resistance"], dietPreference: "vegetarian", objective: "", glycemicStatus: "prediabetes", labs: { hba1c: 6.1, fastingGlucose: 112 } },
+  { clientName: "PCOS + insulin resistance non-veg", age: 27, sex: "female", heightCm: 158, weightKg: 68, activityLevel: "moderate", incomeGroup: "high", allergies: "", dietType: "pcos", conditions: ["pcos"], dietPreference: "non-vegetarian", objective: "", glycemicStatus: "insulin-resistance", labs: { fastingGlucose: 94, fastingInsulin: 14 } },
+  { clientName: "Multi: PCOS + hypothyroid + weight loss veg", age: 31, sex: "female", heightCm: 156, weightKg: 74, activityLevel: "light", incomeGroup: "middle", allergies: "", dietType: "pcos", conditions: ["pcos", "hypothyroid", "weight-loss"], dietPreference: "vegetarian", objective: "", glycemicStatus: "insulin-resistance", labs: {} },
+  { clientName: "Multi: hypertension + diabetes non-veg", age: 55, sex: "male", heightCm: 170, weightKg: 80, activityLevel: "sedentary", incomeGroup: "middle", allergies: "", dietType: "diabetes", conditions: ["diabetes", "hypertension"], dietPreference: "non-vegetarian", objective: "", glycemicStatus: "none", labs: {} },
 ];
 
 const index = Object.fromEntries(BUILTIN_DISHES.map((d) => [d.id, d]));
@@ -23,7 +25,7 @@ const verbose = process.argv.includes("-v");
 for (const s of cases) {
   const results = computeAssessment(s, defaultSettings(s));
   const menu = buildMenuPlan(results, s);
-  const profile = { dietType: s.dietType, dietPreference: s.dietPreference, allergens: parseAllergies(s.allergies), incomeGroup: s.incomeGroup, glycemicStatus: s.glycemicStatus };
+  const profile = { dietType: s.dietType, conditions: s.conditions, dietPreference: s.dietPreference, allergens: parseAllergies(s.allergies), incomeGroup: s.incomeGroup, glycemicStatus: s.glycemicStatus };
   const conds = profileConditions(profile);
   const prefs = { ...defaultPrefs(profile, 28), seed: 12345, startDate: "2026-11-16" };
   const targets = buildTargets(results, menu, prefs);

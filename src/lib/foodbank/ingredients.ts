@@ -4282,6 +4282,35 @@ export const INGREDIENTS: Ingredient[] = [
   "cost": 3
  },
  {
+  "key": "brazil_nut",
+  "name": "Brazil nuts",
+  "group": "NUTS",
+  "source": "USDA FDC 170569",
+  "per100": {
+   "kcal": 659,
+   "protein": 14.32,
+   "fat": 67.1,
+   "carbs": 11.74,
+   "fibre": 7.5,
+   "calcium": 160,
+   "iron": 2.43,
+   "sodium": 3,
+   "potassium": 659,
+   "vitaminC": 0.7,
+   "folate": 22
+  },
+  "category": "Nuts & Seeds",
+  "cost": 3,
+  "allergens": [
+   "tree-nuts"
+  ],
+  "piece": {
+   "grams": 5,
+   "singular": "nut",
+   "plural": "nuts"
+  }
+ },
+ {
   "key": "peanut_butter",
   "name": "Peanut butter (unsweetened)",
   "group": "NUTS",

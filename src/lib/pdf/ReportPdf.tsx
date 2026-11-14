@@ -1,3 +1,4 @@
+import { conditionsLabel, subjectConditions } from "../conditions";
 import { glycemicSummary } from "../glycemic";
 import React from "react";
 import {
@@ -187,7 +188,7 @@ export function ReportPdf(props: ReportPdfProps) {
           <InfoRow label="Diet preference" value={subject.dietPreference} />
           <InfoRow
             label="Condition / goal"
-            value={DIET_TYPE_LABELS[subject.dietType as DietType]}
+            value={conditionsLabel(subjectConditions(subject), subject.glycemicStatus)}
           />
           {glycemicSummary(subject) && <InfoRow label="Blood sugar" value={glycemicSummary(subject)} />}
           <InfoRow label="Food allergies" value={subject.allergies || "None"} />

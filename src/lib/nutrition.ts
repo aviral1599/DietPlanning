@@ -80,32 +80,34 @@ const FAT_PERCENT: Record<DietType, number> = {
  */
 export function autoGoalAdjustment(subject: SubjectInfo): number {
   const b = bmi(subject.weightKg, subject.heightCm);
-  switch (subject.dietType) {
-    case "weight-loss":
-      return -500;
-    case "weight-gain":
-      return 500;
-    case "pcos":
-    case "insulin-resistance":
-    case "diabetes":
-      return b >= 23 ? -300 : 0;
-    case "general":
-    case "hypothyroid":
-    case "hypertension":
-    case "high-protein":
-      return subject.glycemicStatus && subject.glycemicStatus !== "none" && b >= 23 ? -300 : 0;
-    default:
-      return 0; // renal, pregnancy, lactation — no deficit
-  }
+  const c = conditionList(subject);
+  if (c.includes("weight-gain")) return 500;
+  // Never a deficit in pregnancy, lactation or kidney disease.
+  if (c.some((x) => x === "renal" || x === "pregnancy" || x === "lactation")) return 0;
+  if (c.includes("weight-loss")) return -500;
+  const glycaemic =
+    c.some((x) => x === "pcos" || x === "insulin-resistance" || x === "diabetes") ||
+    (!!subject.glycemicStatus && subject.glycemicStatus !== "none");
+  return glycaemic && b >= 23 ? -300 : 0;
+}
+
+/** All selected conditions (older subjects only have dietType). */
+export function conditionList(subject: Pick<SubjectInfo, "dietType"> & { conditions?: DietType[] }): DietType[] {
+  return subject.conditions?.length ? subject.conditions : [subject.dietType];
 }
 
 export function defaultSettings(subject: SubjectInfo): NutritionSettings {
   // Insulin resistance / prediabetes on top of another goal: slightly more
   // protein (satiety, blunts post-meal glucose) unless protein is restricted.
-  let proteinPerKg = PROTEIN_PER_KG[subject.dietType] ?? 1.0;
-  if (subject.glycemicStatus && subject.glycemicStatus !== "none" && subject.dietType !== "renal") {
+  // Several conditions: the highest protein need wins, except kidney disease,
+  // which caps protein; the lowest fat share wins (e.g. hypertension's 20 %).
+  const conds = conditionList(subject);
+  const renal = conds.includes("renal");
+  let proteinPerKg = renal ? PROTEIN_PER_KG.renal : Math.max(...conds.map((c) => PROTEIN_PER_KG[c] ?? 1.0));
+  if (subject.glycemicStatus && subject.glycemicStatus !== "none" && !renal) {
     proteinPerKg = Math.max(proteinPerKg, 1.1);
   }
+  const fatPercent = renal ? FAT_PERCENT.renal : Math.min(...conds.map((c) => FAT_PERCENT[c] ?? 0.25));
   return {
     // Mifflin–St Jeor is the most accurate predictive equation for adults,
     // including overweight/obese (Academy of Nutrition & Dietetics).
@@ -115,7 +117,7 @@ export function defaultSettings(subject: SubjectInfo): NutritionSettings {
     sdaFactor: 0.1,
     proteinPerKg,
     proteinBasis: "ideal",
-    fatPercent: FAT_PERCENT[subject.dietType] ?? 0.25,
+    fatPercent,
     goalAdjustment: null,
     energyOverride: null,
   };
@@ -396,10 +398,11 @@ export function energySuggestions(subject: SubjectInfo, results: CalcResults): E
     if (v < floor || out.some((o) => Math.abs(o.kcal - v) < 30)) return;
     out.push({ key, label, kcal: v, note });
   };
-  const noDeficit = ["renal", "pregnancy", "lactation", "weight-gain"].includes(subject.dietType);
+  const conds = conditionList(subject);
+  const noDeficit = conds.some((c) => ["renal", "pregnancy", "lactation", "weight-gain"].includes(c));
 
   add("maintain", "Maintain weight", tee, "TEE — no deficit");
-  if (!noDeficit && (b >= 23 || subject.dietType === "weight-loss")) {
+  if (!noDeficit && (b >= 23 || conds.includes("weight-loss"))) {
     add("mild", "Gentle loss", tee - 300, "TEE − 300 · ~0.3 kg/week");
     add("loss", "Weight loss", tee - 500, "TEE − 500 · ~0.5 kg/week");
     if (b >= 25) {
@@ -407,7 +410,7 @@ export function energySuggestions(subject: SubjectInfo, results: CalcResults): E
       add("kg20", "20 kcal/kg body wt", 20 * wt, `20 × ${wt} kg · faster loss`);
     }
   }
-  if (subject.dietType === "weight-gain" || b < 18.5) {
+  if (conds.includes("weight-gain") || b < 18.5) {
     add("gain3", "Gentle gain", tee + 300, "TEE + 300");
     add("gain5", "Weight gain", tee + 500, "TEE + 500 · ~0.5 kg/week");
   }

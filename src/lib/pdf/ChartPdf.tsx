@@ -1,4 +1,4 @@
-import { conditionLabel } from "../glycemic";
+import { conditionsLabel, subjectConditions } from "../conditions";
 import React from "react";
 import { Document, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
 import { formatPortion } from "../foodbank/bank";
@@ -62,7 +62,7 @@ export function ChartPdf({ title, clinicName, coachName, subject, days, targets,
         <Text style={s.muted}>{sub}</Text>
         <Text style={s.muted}>
           Target: {targets.kcal} kcal / day · Protein {targets.protein} g
-          {subject ? ` · ${conditionLabel(DIET_TYPE_LABELS[subject.dietType], subject.dietType, subject.glycemicStatus)} · ${subject.dietPreference}` : ""}
+          {subject ? ` · ${conditionsLabel(subjectConditions(subject), subject.glycemicStatus)} · ${subject.dietPreference}` : ""}
         </Text>
       </View>
     </View>

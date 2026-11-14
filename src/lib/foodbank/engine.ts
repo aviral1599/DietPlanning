@@ -73,7 +73,10 @@ export interface ChartTargets {
 }
 
 export interface ChartProfile {
+  /** Primary condition. */
   dietType: DietType;
+  /** All selected conditions (defaults to [dietType]). */
+  conditions?: DietType[];
   dietPreference: DietPreference;
   allergens: Allergen[];
   incomeGroup: IncomeGroup;
@@ -81,9 +84,15 @@ export interface ChartProfile {
   glycemicStatus?: GlycemicStatus;
 }
 
-/** All conditions that shape food choice (main condition + glycaemic flag). */
+/** All conditions that shape food choice (selected conditions + glycaemic flag). */
 export function profileConditions(profile: ChartProfile): DietType[] {
-  return conditionsOf(profile.dietType, profile.glycemicStatus);
+  const base = profile.conditions?.length ? profile.conditions : [profile.dietType];
+  return conditionsOf(base, profile.glycemicStatus);
+}
+
+/** The client has this condition (any of the selected ones). */
+function has(profile: ChartProfile, c: DietType): boolean {
+  return profile.dietType === c || !!profile.conditions?.includes(c);
 }
 
 function avoidsAny(d: Dish, profile: ChartProfile): boolean {
@@ -96,14 +105,14 @@ function goodForAny(d: Dish, profile: ChartProfile): boolean {
 
 /** Blood-sugar-aware planning: low GI, carbs paired with protein/fibre. */
 function glycemic(profile: ChartProfile): boolean {
-  return profile.dietType === "weight-loss" || isGlycemicConcern(profile.dietType, profile.glycemicStatus);
+  return has(profile, "weight-loss") || isGlycemicConcern(profileConditions(profile), profile.glycemicStatus);
 }
 
 /** Insulin resistance / prediabetes / diabetes specifically (not plain weight loss). */
 function insulinFocus(profile: ChartProfile): boolean {
   return (
-    profile.dietType === "diabetes" ||
-    profile.dietType === "insulin-resistance" ||
+    has(profile, "diabetes") ||
+    has(profile, "insulin-resistance") ||
     (!!profile.glycemicStatus && profile.glycemicStatus !== "none")
   );
 }
@@ -185,21 +194,17 @@ const SHARE_BOUNDS: Record<MealTime, [number, number]> = {
 };
 
 export function defaultPrefs(profile: ChartProfile, days = 7): ChartPrefs {
-  const d = profile.dietType;
   const ir = insulinFocus(profile);
-  const focus: DishTag[] =
-    ir
-      ? ["ir-friendly", "high-fibre", "millet"]
-      : d === "diabetes" || d === "pcos"
-      ? ["millet", "high-fibre"]
-      : d === "weight-loss"
-        ? ["high-fibre", "high-protein"]
-        : d === "high-protein" || d === "weight-gain"
-          ? ["high-protein"]
-          : d === "pregnancy" || d === "lactation"
-            ? ["iron-rich", "calcium-rich"]
-            : [];
-  const avoid: DishTag[] = ir || ["diabetes", "pcos", "weight-loss", "hypertension"].includes(d) ? ["fried"] : [];
+  const h = (c: DietType) => has(profile, c);
+  // Union of each condition's focus tags (max 4 so the planner keeps variety).
+  const focusSet = new Set<DishTag>();
+  if (ir) ["ir-friendly", "high-fibre", "millet"].forEach((t) => focusSet.add(t as DishTag));
+  else if (h("diabetes") || h("pcos")) ["millet", "high-fibre"].forEach((t) => focusSet.add(t as DishTag));
+  if (h("weight-loss")) ["high-fibre", "high-protein"].forEach((t) => focusSet.add(t as DishTag));
+  if (h("high-protein") || h("weight-gain")) focusSet.add("high-protein");
+  if (h("pregnancy") || h("lactation")) ["iron-rich", "calcium-rich"].forEach((t) => focusSet.add(t as DishTag));
+  const focus = [...focusSet].slice(0, 4);
+  const avoid: DishTag[] = ir || (["diabetes", "pcos", "weight-loss", "hypertension"] as DietType[]).some(h) ? ["fried"] : [];
   return {
     days,
     startDate: nextMonday(),
@@ -391,12 +396,12 @@ function score(d: Dish, day: number, ctx: Ctx, anchor: Dish | null, meal: MealTi
     else if (carbCarrier) s -= 8;
     if (meal === "breakfast" && d.allTags.includes("high-protein")) s += 4;
   }
-  if (profile.dietType === "hypertension") {
+  if (has(profile, "hypertension")) {
     const na = d.perUnit.sodium * d.unit.default;
     if (na > 500) s -= 6;
   }
-  if (profile.dietType === "weight-gain" && d.perUnit.kcal * d.unit.default > 300) s += 4;
-  if (profile.dietType === "renal") {
+  if (has(profile, "weight-gain") && d.perUnit.kcal * d.unit.default > 300) s += 4;
+  if (has(profile, "renal")) {
     if (d.allTags.includes("high-protein")) s -= 12;
     if (d.perUnit.kcal > 0 && d.perUnit.protein / d.perUnit.kcal > 0.05) s -= 8;
     if (d.role === "staple" && d.stapleKind === "rice") s += 6;
@@ -562,7 +567,7 @@ function buildMeal(
       const f = filled();
       const isProteinMeal = plan.proteinMeal === meal;
       // Renal: a single dal / protein serving a day (at lunch); dinner stays cereal + veg.
-      if (ctx.profile.dietType === "renal" && meal === "dinner") {
+      if (has(ctx.profile, "renal") && meal === "dinner") {
         if (!f.has("staple")) add(["staple"], null);
         if (!filled().has("sabzi")) add(["sabzi"], null);
         if (!filled().has("salad") && !filled().has("soup")) add(["salad"], null);
@@ -690,7 +695,7 @@ function balanceDay(day: ChartDay, ctx: Ctx, dayDishIds: Set<string>) {
   //    drop protein extras, then refill energy from staples.
   // Renal: protein is a hard ceiling. Otherwise a natural Indian diet may sit
   // above the minimum; only cap genuine outliers (> 20 % of energy).
-  const renal = ctx.profile.dietType === "renal";
+  const renal = has(ctx.profile, "renal");
   const ceiling = renal
     ? targets.protein * 1.1
     : Math.max(targets.protein * 1.35, (targets.kcal * 0.2) / 4);
@@ -787,7 +792,7 @@ function growEnergy(day: ChartDay, ctx: Ctx, gap: number, dayDishIds: Set<string
     ["midMorning", ["fruit", "nuts"]],
     ["breakfast", ["beverage", "fruit", "raita"]],
     ["bedtime", ["beverage"]],
-    ["lunch", ["sweet", "raita"]],
+    ["lunch", ["sweet", "raita", "nuts"]], // "nuts" with a lunch slot = after-lunch picks like date + Brazil nut
     ["earlyMorning", ["nuts", "fruit"]],
     ["dinner", ["raita", "salad"]],
   ];
@@ -796,7 +801,7 @@ function growEnergy(day: ChartDay, ctx: Ctx, gap: number, dayDishIds: Set<string
     for (const [meal, roles] of plan) {
       if (close()) break;
       if (ctx.targets.slotShare[meal] <= 0) continue;
-      const renal = ctx.profile.dietType === "renal";
+      const renal = has(ctx.profile, "renal");
       const fatHigh = dayTotals(day, ctx.index).fat > ctx.targets.fat * 1.05;
       const d = pickDish(roles, meal, day.day, ctx, dayDishIds, null, nv, (x) =>
         x.perUnit.kcal * x.unit.default >= 60 &&
@@ -897,7 +902,7 @@ function buildDay(dayIdx: number, date: string, ctx: Ctx, existing?: DayMeals): 
   let proteinMeal: MealTime | null = null;
   if (nonVegToday) proteinMeal = dayIdx % 2 === 0 ? "dinner" : "lunch";
   else if ([1, 3, 5].includes(wd)) proteinMeal = "dinner";
-  else if (["high-protein", "weight-gain", "pcos"].includes(ctx.profile.dietType) && wd === 6) proteinMeal = "lunch";
+  else if ((["high-protein", "weight-gain", "pcos"] as DietType[]).some((c) => has(ctx.profile, c)) && wd === 6) proteinMeal = "lunch";
 
   let onePotMeal: MealTime | null = null;
   const r = ctx.rng();

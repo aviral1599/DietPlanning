@@ -1,12 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { conditionLabel } from "@/lib/glycemic";
+import { conditionsLabel, subjectConditions } from "@/lib/conditions";
 import type { GlycemicStatus } from "@/lib/types";
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { DIET_TYPE_LABELS } from "@/lib/types";
-import type { DietType } from "@/lib/types";
 
 export interface ReportRow {
   id: string;
@@ -14,6 +12,7 @@ export interface ReportRow {
   age: number;
   sex: string;
   dietType: string;
+  conditions?: string;
   glycemicStatus?: string;
   dietPreference: string;
   status: string;
@@ -22,8 +21,8 @@ export interface ReportRow {
   updatedAt: string;
 }
 
-function label(r: { dietType: string; glycemicStatus?: string }) {
-  return conditionLabel(DIET_TYPE_LABELS[r.dietType as DietType] ?? r.dietType, r.dietType as DietType, r.glycemicStatus as GlycemicStatus);
+function label(r: { dietType: string; conditions?: string; glycemicStatus?: string }) {
+  return conditionsLabel(subjectConditions(r), r.glycemicStatus as GlycemicStatus);
 }
 
 export default function ClientList({ rows }: { rows: ReportRow[] }) {

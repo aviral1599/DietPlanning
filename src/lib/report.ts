@@ -2,6 +2,7 @@ import { computeAssessment, defaultSettings } from "./nutrition";
 import { buildMenuPlan } from "./planner";
 import { buildBuiltinAnalysis } from "./analysis";
 import { normalizeLabs, normalizeStatus } from "./glycemic";
+import { normalizeConditions, primaryCondition } from "./conditions";
 import {
   Analysis,
   CalcResults,
@@ -43,12 +44,14 @@ export function buildFullReport(
 
 /** Coerce raw form/db values into a typed SubjectInfo. */
 export function toSubjectInfo(raw: Record<string, unknown>): SubjectInfo {
-  const dietType = (raw.dietType as SubjectInfo["dietType"]) ?? "general";
+  // `conditions` (multi-select) wins; older rows / requests only have dietType.
+  const conditions = normalizeConditions(raw.conditions, raw.dietType ?? "general");
+  const dietType = primaryCondition(conditions);
   let glycemicStatus = normalizeStatus(raw.glycemicStatus);
-  // "Insulin resistance / prediabetes" as the main condition implies the flag;
+  // "Insulin resistance / prediabetes" as a condition implies the flag;
   // diabetes supersedes it.
-  if (dietType === "insulin-resistance" && glycemicStatus === "none") glycemicStatus = "insulin-resistance";
-  if (dietType === "diabetes") glycemicStatus = "none";
+  if (conditions.includes("insulin-resistance") && glycemicStatus === "none") glycemicStatus = "insulin-resistance";
+  if (conditions.includes("diabetes")) glycemicStatus = "none";
   return {
     clientName: String(raw.clientName ?? "").trim(),
     age: Number(raw.age ?? 0),
@@ -60,6 +63,7 @@ export function toSubjectInfo(raw: Record<string, unknown>): SubjectInfo {
     incomeGroup: (raw.incomeGroup as SubjectInfo["incomeGroup"]) ?? "middle",
     allergies: String(raw.allergies ?? ""),
     dietType,
+    conditions,
     dietPreference:
       (raw.dietPreference as SubjectInfo["dietPreference"]) ?? "vegetarian",
     objective: String(raw.objective ?? ""),

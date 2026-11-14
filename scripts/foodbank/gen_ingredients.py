@@ -258,6 +258,10 @@ EXTRA = [
      dict(kcal=486, p=16.5, f=30.7, c=7.7, fib=34.4, ca=631, fe=7.7, na=16, k=407, vitc=2, fol=49), {"cost": 3}),
     ("pumpkin_seeds", "Pumpkin seeds", "NUTS", "USDA FDC 170556",
      dict(kcal=559, p=30.2, f=49.1, c=4.7, fib=6.0, ca=46, fe=8.8, na=7, k=809, vitc=2, fol=58), {"cost": 3}),
+    # Selenium ≈ 1917 µg/100 g (≈ 95 µg per 5 g nut; adult UL 400 µg/day) — keep to 1 nut a day.
+    ("brazil_nut", "Brazil nuts", "NUTS", "USDA FDC 170569",
+     dict(kcal=659, p=14.32, f=67.1, c=11.74, fib=7.5, ca=160, fe=2.43, na=3, k=659, vitc=0.7, fol=22),
+     {"a": ["tree-nuts"], "cost": 3, "piece": (5, "nut", "nuts")}),
     ("peanut_butter", "Peanut butter (unsweetened)", "NUTS", "USDA FDC 172470",
      dict(kcal=588, p=25.1, f=50.4, c=13.9, fib=6.0, ca=43, fe=1.9, na=400, k=649, vitc=0, fol=87), {"a": ["peanut"], "cost": 2}),
     ("broccoli", "Broccoli", "VEG_B", "USDA FDC 170379",

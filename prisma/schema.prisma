@@ -68,6 +68,7 @@ model Report {
   dietPreference String @default("vegetarian") // vegetarian | non-vegetarian | eggetarian | vegan
   objective      String @default("")
   glycemicStatus String @default("none") // none | insulin-resistance | prediabetes
+  conditions     String @default("[]") // JSON DietType[] — all selected conditions
   labs           String @default("{}") // GlycemicLabs JSON (HbA1c, FBS, PPBS, fasting insulin)
 
   // Configurable calc settings (JSON) + computed results (JSON)

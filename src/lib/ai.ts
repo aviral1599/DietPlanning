@@ -1,7 +1,7 @@
 import { glycemicSummary } from "./glycemic";
 import Anthropic from "@anthropic-ai/sdk";
 import { Analysis, CalcResults, MenuPlan, SubjectInfo } from "./types";
-import { DIET_TYPE_LABELS } from "./types";
+import { conditionsLabel, subjectConditions } from "./conditions";
 
 // Latest capable balanced model for clinical narrative generation.
 const MODEL = "claude-sonnet-5";
@@ -33,7 +33,7 @@ CLIENT
 - Height/Weight: ${subject.heightCm} cm / ${subject.weightKg} kg
 - Activity: ${subject.activityLevel}
 - Diet preference: ${subject.dietPreference}
-- Condition/goal: ${DIET_TYPE_LABELS[subject.dietType]}
+- Condition(s)/goal(s): ${conditionsLabel(subjectConditions(subject), subject.glycemicStatus)}
 - Blood sugar (insulin resistance / prediabetes, labs): ${glycemicSummary(subject) || "normal / not tested"}
 - Income group: ${subject.incomeGroup}
 - Allergies: ${subject.allergies || "none"}

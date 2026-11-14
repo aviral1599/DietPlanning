@@ -1,3 +1,4 @@
+import { conditionsLabel, subjectConditions } from "@/lib/conditions";
 import { glycemicSummary } from "@/lib/glycemic";
 import { NextResponse } from "next/server";
 import ExcelJS from "exceljs";
@@ -73,7 +74,7 @@ export async function GET(
     push("Activity", subject.activityLevel);
     push("Income group", subject.incomeGroup);
     push("Diet preference", subject.dietPreference);
-    push("Condition / goal", DIET_TYPE_LABELS[subject.dietType as DietType]);
+    push("Condition / goal", conditionsLabel(subjectConditions(subject), subject.glycemicStatus));
     push("Blood sugar status / labs", glycemicSummary(subject) || "Normal / not tested");
     push("Allergies", subject.allergies || "None");
     push("Objective", subject.objective || "—");
@@ -218,6 +219,8 @@ function buildCsv(
   row("Sex", subject.sex);
   row("Height (cm)", subject.heightCm);
   row("Weight (kg)", subject.weightKg);
+  row("Activity", subject.activityLevel);
+  row("Condition / goal", conditionsLabel(subjectConditions(subject), subject.glycemicStatus));
   row("");
   row("CALCULATIONS");
   row("IBW (kg)", results.ibw);

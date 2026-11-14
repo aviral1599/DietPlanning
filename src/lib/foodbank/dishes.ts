@@ -54,6 +54,11 @@ export const DISHES: DishDef[] = [
   { id: "green-tea", name: "Green Tea", cuisine: "pan-indian", role: "beverage", slots: [...EM, ...MM, ...ES], unit: cup(),
     ingredients: { water: 150, tea_leaves: 2 }, tags: ["quick", "light", "modern"], freq: "daily",
     method: "Steep green tea for 2–3 minutes in water just off the boil. No sugar." },
+  { id: "turmeric-tea", name: "Turmeric Tea", local: "Haldi chai", cuisine: "pan-indian", role: "beverage", slots: EM, unit: cup(),
+    // spices ≈ 1-inch cinnamon stick (≈1 g); black pepper = a pinch (2–3 crushed peppercorns)
+    ingredients: { water: 150, turmeric: 1.5, spices: 1, black_pepper: 0.3 }, tags: ["traditional", "light", "quick"], gi: "low", freq: "daily",
+    goodFor: ["insulin-resistance", "pcos", "diabetes", "weight-loss", "hypothyroid"],
+    method: "Boil 1 cup water with a 1-inch cinnamon stick for 3–4 minutes. Add ½ tsp turmeric powder and a pinch of crushed black pepper, simmer 1–2 minutes, strain and drink warm in the morning. No sugar, honey or milk." },
   { id: "masala-chai", name: "Masala Chai (less sugar)", cuisine: "pan-indian", role: "beverage", slots: [...EM, ...ES], unit: cup(),
     ingredients: { milk_toned: 100, water: 50, tea_leaves: 3, sugar: 3, ginger: 1 }, tags: ["traditional", "comfort"], freq: "daily", avoidFor: ["diabetes"],
     method: "Boil water with ginger and tea, add milk and ½ tsp sugar, simmer and strain." },
@@ -1020,6 +1025,11 @@ export const DISHES: DishDef[] = [
     method: "Toss seasonal fruit with lemon and chaat masala." },
   { id: "dates", name: "Dates", cuisine: "pan-indian", role: "fruit", slots: [...MM, ...ES, ...EM], unit: pcs("date", "dates", 2, 1, 4, "≈8 g each"),
     ingredients: { dates: 8 }, tags: ["no-cook", "iron-rich"], gi: "medium", freq: "regular", avoidFor: ["diabetes"], goodFor: ["weight-gain"], method: "Dry dates (khajur)." },
+  // One nut only: a Brazil nut carries ≈ 95 µg selenium (adult upper limit 400 µg/day).
+  { id: "date-brazil-nut", name: "Date with Brazil Nut", local: "Khajur with Brazil nut", cuisine: "pan-indian", role: "nuts", slots: ["lunch", ...ES],
+    unit: pcs("serving", "servings", 1, 1, 1, "1 date + 1 Brazil nut"),
+    ingredients: { dates: 8, brazil_nut: 5 }, tags: ["no-cook", "quick"], freq: "daily", goodFor: ["hypothyroid"],
+    method: "Eat 1 soft date (khajur) with 1 Brazil nut — as a dessert after lunch or with the evening snack. Keep to one Brazil nut a day (very rich in selenium)." },
 
   // =========================================================================
   // SWEETS (portion-controlled, occasional)

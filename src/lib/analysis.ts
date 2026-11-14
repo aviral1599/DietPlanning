@@ -265,7 +265,8 @@ export function buildBuiltinAnalysis(
   subject: SubjectInfo,
   results: CalcResults
 ): Analysis {
-  const g = CONDITION_GUIDANCE[subject.dietType] ?? CONDITION_GUIDANCE.general;
+  const conds: DietType[] = subject.conditions?.length ? subject.conditions : [subject.dietType];
+  const g = CONDITION_GUIDANCE[conds[0]] ?? CONDITION_GUIDANCE.general;
 
   const goals = [...g.goals];
   const dos = [...g.dos];
@@ -273,10 +274,32 @@ export function buildBuiltinAnalysis(
   const include = [...g.include];
   const exclude = [...g.exclude];
 
-  // Insulin resistance / prediabetes on top of another condition.
+  // Skip an item when the list already covers the same topic (e.g. two "avoid sugar" lines).
+  const TOPICS = [/sugar|sweet/i, /juice/i, /maida|refined|bakery/i, /fried/i, /millet/i, /low-gi/i, /salt|sodium|pickle|papad/i, /protein/i, /water|fluid/i];
+  const covered = (list: string[], item: string) => {
+    if (list.includes(item)) return true;
+    const topics = TOPICS.filter((t) => t.test(item));
+    return topics.length > 0 && topics.every((t) => list.some((x) => t.test(x)));
+  };
+  const add = (list: string[], items: (string | undefined)[]) =>
+    items.forEach((i) => i && !covered(list, i) && list.push(i));
+
+  // Further selected conditions: their key points on top of the primary one.
+  for (const c of conds.slice(1)) {
+    const o = CONDITION_GUIDANCE[c];
+    if (!o || c === "general") continue;
+    add(goals, o.goals.slice(0, 2));
+    add(dos, o.dos.slice(0, 3));
+    add(donts, o.donts.slice(0, 3));
+    add(include, o.include.slice(0, 3));
+    add(exclude, o.exclude.slice(0, 3));
+  }
+
+  // Insulin resistance / prediabetes on top of other conditions.
   const gs = subject.glycemicStatus ?? "none";
-  const glycemicOverlay = gs !== "none" && subject.dietType !== "insulin-resistance" && subject.dietType !== "diabetes";
-  if (gs !== "none" && subject.dietType !== "diabetes") {
+  const diabetic = conds.includes("diabetes");
+  const glycemicOverlay = gs !== "none" && !conds.includes("insulin-resistance") && !diabetic;
+  if (gs !== "none" && !diabetic) {
     goals.unshift(
       gs === "prediabetes"
         ? "Prediabetes: bring HbA1c below 5.7 % and fasting glucose below 100 mg/dL through diet, activity and (if overweight) 5–7 % weight loss."
@@ -285,14 +308,6 @@ export function buildBuiltinAnalysis(
   }
   if (glycemicOverlay) {
     const ir = CONDITION_GUIDANCE["insulin-resistance"];
-    // Skip an item when the list already covers the same topic (e.g. two "avoid sugar" lines).
-    const TOPICS = [/sugar|sweet/i, /juice/i, /maida|refined|bakery/i, /fried/i, /millet/i, /low-gi/i];
-    const covered = (list: string[], item: string) => {
-      if (list.includes(item)) return true;
-      const topics = TOPICS.filter((t) => t.test(item));
-      return topics.length > 0 && topics.every((t) => list.some((x) => t.test(x)));
-    };
-    const add = (list: string[], items: string[]) => items.forEach((i) => !covered(list, i) && list.push(i));
     add(dos, [ir.dos[0], ir.dos[1], ir.dos[3], ir.dos[5]]);
     add(donts, [ir.donts[0], ir.donts[1], ir.donts[2]]);
     add(include, [ir.include[0], ir.include[4], ir.include[5]]);
@@ -313,7 +328,7 @@ export function buildBuiltinAnalysis(
           : `${f.label} ${f.value} — ${f.band}.`
     );
   }
-  if (labs.suggested === "diabetes" && subject.dietType !== "diabetes") {
+  if (labs.suggested === "diabetes" && !diabetic) {
     goals.unshift("Lab values are in the diabetes range — refer to a physician to confirm the diagnosis before continuing.");
   }
 

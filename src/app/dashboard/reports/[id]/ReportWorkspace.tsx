@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { conditionLabel } from "@/lib/glycemic";
+import { conditionsLabel, subjectConditions } from "@/lib/conditions";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -152,7 +152,7 @@ export default function ReportWorkspace({
           </h1>
           <p className="text-sm text-slate-500">
             {report.subject.age} yr · {report.subject.sex} ·{" "}
-            {conditionLabel(DIET_TYPE_LABELS[report.subject.dietType as DietType], report.subject.dietType as DietType, report.subject.glycemicStatus)} ·{" "}
+            {conditionsLabel(subjectConditions(report.subject), report.subject.glycemicStatus)} ·{" "}
             <span className="capitalize">{report.subject.dietPreference}</span>
           </p>
         </div>

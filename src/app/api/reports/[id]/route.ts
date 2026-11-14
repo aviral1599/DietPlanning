@@ -57,6 +57,8 @@ export async function PUT(
       incomeGroup: body.incomeGroup ?? existing.incomeGroup,
       allergies: body.allergies ?? existing.allergies,
       dietType: body.dietType ?? existing.dietType,
+      // A request that only sends dietType (older client) replaces the list.
+      conditions: body.conditions ?? (body.dietType ? [body.dietType] : existing.conditions),
       dietPreference: body.dietPreference ?? existing.dietPreference,
       objective: body.objective ?? existing.objective,
       glycemicStatus: body.glycemicStatus ?? existing.glycemicStatus,
@@ -121,6 +123,7 @@ export async function PUT(
         incomeGroup: subject.incomeGroup,
         allergies: subject.allergies,
         dietType: subject.dietType,
+        conditions: JSON.stringify(subject.conditions),
         dietPreference: subject.dietPreference,
         objective: subject.objective,
         glycemicStatus: subject.glycemicStatus,
