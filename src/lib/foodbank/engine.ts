@@ -458,7 +458,8 @@ function pickDish(
     let best: Dish | null = null;
     let bestScore = -Infinity;
     for (const d of ctx.pool) {
-      if (!roles.includes(d.role)) continue;
+      // A one-dish meal that also works as breakfast (e.g. Paneer Taco) can be picked for breakfast.
+      if (!roles.includes(d.role) && !(roles.includes("breakfast") && d.fills?.includes("breakfast"))) continue;
       if (extraFilter && !extraFilter(d)) continue;
       if (!eligible(d, meal, day, ctx, dayDishIds, { nonVeg, strict })) continue;
       const sc = score(d, day, ctx, anchor, meal);
@@ -496,7 +497,7 @@ function rolesFilled(items: PlanItem[], index: DishIndex): Set<DishRole> {
 // Order in which dishes absorb the energy gap for each meal.
 const FLEX: Record<MealTime, DishRole[]> = {
   earlyMorning: ["nuts", "beverage"],
-  breakfast: ["breakfast", "staple", "protein"],
+  breakfast: ["breakfast", "staple", "protein", "one-pot"],
   midMorning: ["fruit", "beverage", "snack"],
   lunch: ["staple", "one-pot", "dal", "protein"],
   eveningSnack: ["snack", "nuts", "fruit", "beverage", "breakfast"],

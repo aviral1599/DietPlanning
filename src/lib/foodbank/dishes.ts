@@ -573,6 +573,12 @@ export const DISHES: DishDef[] = [
     ingredients: { paneer: 60, onion: 20, tomato: 25, capsicum: 15, oil: 4, spices: 0.5, salt: 0.6 },
     tags: ["quick", "high-protein"], gi: "low", freq: "regular", goodFor: ["high-protein", "pcos"],
     method: "Crumble paneer into sautéed onion, tomato and capsicum; season and cook 3 min." },
+  { id: "paneer-taco", name: "Paneer Taco", local: "Sattu missi roti taco with paneer bhurji", cuisine: "fusion", role: "one-pot", fills: ["staple", "protein", "breakfast"],
+    slots: [...B, ...LD], unit: pcs("taco", "tacos", 2, 1, 4, "1 missi roti + 30 g paneer bhurji + salad"),
+    // Per taco: missi roti (15 g atta + 15 g sattu), paneer bhurji (30 g paneer), a little salad.
+    ingredients: { atta: 15, sattu: 15, paneer: 30, onion: 20, tomato: 12, capsicum: 8, lettuce: 10, cucumber: 10, coriander: 2, oil: 4, spices: 0.75, salt: 0.6 },
+    tags: ["high-protein"], gi: "low", freq: "regular", goodFor: ["high-protein", "pcos", "diabetes"], prepMins: 25,
+    method: "Knead atta and sattu with onion, coriander and spices; roll thin and roast as missi roti. Fill with paneer bhurji (paneer crumbled into sautéed onion, tomato and capsicum), top with a little salad of choice and fold like a taco." },
   { id: "paneer-tikka", name: "Paneer Tikka (grilled)", cuisine: "north", role: "protein", slots: [...LD, ...ES], unit: plate(1, "6 pieces"),
     ingredients: { paneer: 80, hung_curd: 20, capsicum: 30, onion: 30, oil: 3, spices: 1.5, lemon: 3, salt: 0.6 },
     tags: ["grilled", "high-protein"], gi: "low", freq: "weekly", goodFor: ["high-protein", "pcos", "weight-loss"],
