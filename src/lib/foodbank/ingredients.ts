@@ -4336,6 +4336,116 @@ export const INGREDIENTS: Ingredient[] = [
   }
  },
  {
+  "key": "watermelon_seeds",
+  "name": "Watermelon seeds (magaz), kernels",
+  "group": "NUTS",
+  "source": "USDA SR 12174 (watermelon seed kernels, dried); fibre not reported",
+  "per100": {
+   "kcal": 557,
+   "protein": 28.33,
+   "fat": 47.37,
+   "carbs": 15.31,
+   "fibre": 0,
+   "calcium": 54,
+   "iron": 7.28,
+   "sodium": 99,
+   "potassium": 648,
+   "vitaminC": 0,
+   "folate": 58
+  },
+  "category": "Nuts & Seeds",
+  "cost": 3
+ },
+ {
+  "key": "muskmelon_seeds",
+  "name": "Muskmelon seeds (kharbuja magaz), kernels",
+  "group": "NUTS",
+  "source": "Literature midpoint (ITJFS review of muskmelon seed kernels); minerals not reported",
+  "per100": {
+   "kcal": 587,
+   "protein": 37,
+   "fat": 42.7,
+   "carbs": 10.45,
+   "fibre": 6.4,
+   "calcium": 0,
+   "iron": 0,
+   "sodium": 0,
+   "potassium": 0,
+   "vitaminC": 0,
+   "folate": 0
+  },
+  "category": "Nuts & Seeds",
+  "cost": 3
+ },
+ {
+  "key": "mixed_seeds",
+  "name": "Mixed seeds (pumpkin, sunflower, sesame, watermelon, muskmelon)",
+  "group": "NUTS",
+  "source": "Computed: equal parts of the 5 seed ingredients",
+  "per100": {
+   "kcal": 561.8,
+   "protein": 28.15,
+   "fat": 46.81,
+   "carbs": 9.63,
+   "fibre": 8.04,
+   "calcium": 311.8,
+   "iron": 7.39,
+   "sodium": 24.7,
+   "potassium": 495.2,
+   "vitaminC": 0.4,
+   "folate": 65.8
+  },
+  "category": "Nuts & Seeds",
+  "cost": 3,
+  "allergens": [
+   "sesame"
+  ]
+ },
+ {
+  "key": "chamomile_tea",
+  "name": "Chamomile tea, brewed",
+  "group": "OTHER",
+  "source": "USDA SR 14545 (tea, herb, chamomile, brewed)",
+  "per100": {
+   "kcal": 1,
+   "protein": 0,
+   "fat": 0,
+   "carbs": 0.2,
+   "fibre": 0,
+   "calcium": 2,
+   "iron": 0.08,
+   "sodium": 1,
+   "potassium": 9,
+   "vitaminC": 0,
+   "folate": 1
+  },
+  "category": "Beverages",
+  "cost": 1,
+  "liquid": true
+ },
+ {
+  "key": "herbal_tea",
+  "name": "Herbal tea / infusion, brewed (tulsi, hibiscus, lemongrass, yerba mate…)",
+  "group": "OTHER",
+  "source": "USDA FDC 173232 (tea, herb, other than chamomile, brewed)",
+  "per100": {
+   "kcal": 1,
+   "protein": 0,
+   "fat": 0,
+   "carbs": 0.2,
+   "fibre": 0,
+   "calcium": 2,
+   "iron": 0.08,
+   "sodium": 1,
+   "potassium": 9,
+   "vitaminC": 0,
+   "folate": 1
+  },
+  "category": "Beverages",
+  "cost": 1,
+  "liquid": true
+ },
+ {
   "key": "peanut_butter",
   "name": "Peanut butter (unsweetened)",
   "group": "NUTS",

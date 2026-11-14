@@ -189,6 +189,7 @@ export type DishTag =
   | "calcium-rich"
   | "probiotic"
   | "omega-3"
+  | "anti-inflammatory"
   | "low-gi" // auto: low glycaemic index and a meaningful carbohydrate load
   | "ir-friendly" // auto: suits insulin resistance / prediabetes (see bank.ts)
   // context
@@ -215,6 +216,7 @@ export const TAG_LABELS: Partial<Record<DishTag, string>> = {
   "iron-rich": "Iron-rich",
   "calcium-rich": "Calcium-rich",
   "omega-3": "Omega-3",
+  "anti-inflammatory": "Anti-inflammatory",
   "kid-friendly": "Kid-friendly",
   "no-cook": "No-cook",
 };

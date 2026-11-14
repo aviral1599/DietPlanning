@@ -267,6 +267,19 @@ EXTRA = [
     ("brazil_nut", "Brazil nuts", "NUTS", "USDA FDC 170569",
      dict(kcal=659, p=14.32, f=67.1, c=11.74, fib=7.5, ca=160, fe=2.43, na=3, k=659, vitc=0.7, fol=22),
      {"a": ["tree-nuts"], "cost": 3, "piece": (5, "nut", "nuts")}),
+    ("watermelon_seeds", "Watermelon seeds (magaz), kernels", "NUTS", "USDA SR 12174 (watermelon seed kernels, dried); fibre not reported",
+     dict(kcal=557, p=28.33, f=47.37, c=15.31, fib=0, ca=54, fe=7.28, na=99, k=648, vitc=0, fol=58), {"cost": 3}),
+    # No food-table entry exists; midpoints of a published review of kernel composition
+    # (protein 34.2-39.8 %, oil 41.1-44.3 %, carbohydrate 8.2-12.7 %, crude fibre 4.4-8.4 %). Minerals not reported.
+    ("muskmelon_seeds", "Muskmelon seeds (kharbuja magaz), kernels", "NUTS", "Literature midpoint (ITJFS review of muskmelon seed kernels); minerals not reported",
+     dict(kcal=587, p=37, f=42.7, c=10.45, fib=6.4, ca=0, fe=0, na=0, k=0, vitc=0, fol=0), {"cost": 3}),
+    # Equal parts of pumpkin, sunflower, sesame, watermelon and muskmelon seeds (computed from those rows).
+    ("mixed_seeds", "Mixed seeds (pumpkin, sunflower, sesame, watermelon, muskmelon)", "NUTS", "Computed: equal parts of the 5 seed ingredients",
+     dict(kcal=561.8, p=28.15, f=46.81, c=9.63, fib=8.04, ca=311.8, fe=7.39, na=24.7, k=495.2, vitc=0.4, fol=65.8), {"a": ["sesame"], "cost": 3}),
+    ("chamomile_tea", "Chamomile tea, brewed", "OTHER", "USDA SR 14545 (tea, herb, chamomile, brewed)",
+     dict(kcal=1, p=0, f=0, c=0.2, fib=0, ca=2, fe=0.08, na=1, k=9, vitc=0, fol=1), {"liquid": True, "cat": "Beverages"}),
+    ("herbal_tea", "Herbal tea / infusion, brewed (tulsi, hibiscus, lemongrass, yerba mate…)", "OTHER", "USDA FDC 173232 (tea, herb, other than chamomile, brewed)",
+     dict(kcal=1, p=0, f=0, c=0.2, fib=0, ca=2, fe=0.08, na=1, k=9, vitc=0, fol=1), {"liquid": True, "cat": "Beverages"}),
     ("peanut_butter", "Peanut butter (unsweetened)", "NUTS", "USDA FDC 172470",
      dict(kcal=588, p=25.1, f=50.4, c=13.9, fib=6.0, ca=43, fe=1.9, na=400, k=649, vitc=0, fol=87), {"a": ["peanut"], "cost": 2}),
     ("broccoli", "Broccoli", "VEG_B", "USDA FDC 170379",

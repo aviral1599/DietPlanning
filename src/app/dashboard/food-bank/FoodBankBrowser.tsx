@@ -22,6 +22,7 @@ const DIETS = [
 
 const TAGS: { value: DishTag; label: string }[] = [
   { value: "ir-friendly", label: "Insulin-friendly" },
+  { value: "anti-inflammatory", label: "Anti-inflammatory" },
   { value: "high-protein", label: "High protein" },
   { value: "high-fibre", label: "High fibre" },
   { value: "low-gi", label: "Low GI" },
