@@ -77,6 +77,8 @@ export interface ChartDTO {
   updatedAt: string;
   /** Options the client ticked: key `${day}:${uid}` → 0 main, 1.. alternative. */
   choices?: Record<string, number>;
+  /** Meals the client ticked as eaten (portal only): key `${day}:${meal}`. */
+  checks?: Record<string, true>;
 }
 
 export function toChartDTO(row: ChartRow): ChartDTO {
@@ -179,4 +181,19 @@ export async function loadChoices(chartIds: string[]): Promise<Record<string, Re
 export async function chartsWithChoices(rows: ChartRow[]): Promise<ChartDTO[]> {
   const choices = await loadChoices(rows.map((r) => r.id));
   return rows.map((r) => ({ ...toChartDTO(r), choices: choices[r.id] ?? {} }));
+}
+
+export const mealCheckKey = (day: number, meal: string) => `${day}:${meal}`;
+
+/** Meals the client ticked as eaten, by chart id (key `${day}:${meal}`). */
+export async function loadMealChecks(chartIds: string[]): Promise<Record<string, Record<string, true>>> {
+  if (!chartIds.length) return {};
+  // Never let ticks break loading a chart (e.g. before the MealCheck table exists).
+  const rows = await prisma.mealCheck.findMany({ where: { chartId: { in: chartIds } } }).catch((e) => {
+    console.error("loadMealChecks failed", e);
+    return [];
+  });
+  const out: Record<string, Record<string, true>> = {};
+  for (const r of rows) (out[r.chartId] ??= {})[mealCheckKey(r.day, r.meal)] = true;
+  return out;
 }

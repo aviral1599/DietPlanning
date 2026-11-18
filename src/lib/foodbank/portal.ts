@@ -4,7 +4,7 @@ import { safeJsonParse } from "../api";
 import type { Analysis, CalcResults, SubjectInfo } from "../types";
 import { toSubjectInfo } from "../report";
 import type { PlanItem } from "./engine";
-import { ChartDTO, chartsWithChoices, profileFromSubject } from "./server";
+import { ChartDTO, chartsWithChoices, loadMealChecks, profileFromSubject } from "./server";
 
 export interface PortalRequestDTO {
   id: string;
@@ -58,6 +58,10 @@ export async function loadPortalData(clientId: string): Promise<PortalData | nul
   const requests = chartRow
     ? await prisma.changeRequest.findMany({ where: { chartId: chartRow.id, clientId }, orderBy: { createdAt: "desc" }, take: 100 })
     : [];
+  // Ticked options and ticked meals ride along on the chart, like the coach's view of choices.
+  const chart: ChartDTO | null = chartRow
+    ? { ...(await chartsWithChoices([chartRow]))[0], checks: (await loadMealChecks([chartRow.id]))[chartRow.id] ?? {} }
+    : null;
 
   return {
     client: { id: client.id, name: client.name, email: client.email },
@@ -66,7 +70,7 @@ export async function loadPortalData(clientId: string): Promise<PortalData | nul
     results: report ? safeJsonParse<CalcResults | null>(report.results, null) : null,
     analysis: report ? safeJsonParse<Analysis | null>(report.analysis, null) : null,
     reportDate: report?.updatedAt.toISOString() ?? null,
-    chart: chartRow ? (await chartsWithChoices([chartRow]))[0] : null,
+    chart,
     customDishes: customRows.map((r) => ({ id: r.id, coachId: r.coachId, data: r.data })),
     requests: requests.map((r) => ({
       id: r.id,
