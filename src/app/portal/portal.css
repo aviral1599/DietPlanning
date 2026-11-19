@@ -1,0 +1,44 @@
+/*
+ * Client portal theme: shadcn/ui (neutral) tokens and the Geist font.
+ * Everything here is scoped to `.portal` (set in ./layout.tsx), so the coach
+ * dashboard keeps its own look. Plain CSS on purpose: no @tailwind or @layer.
+ */
+.portal {
+  --background: 0 0% 100%;
+  --foreground: 0 0% 3.9%;
+  --card: 0 0% 100%;
+  --card-foreground: 0 0% 3.9%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 0 0% 3.9%;
+  --primary: 0 0% 9%;
+  --primary-foreground: 0 0% 98%;
+  --secondary: 0 0% 96.1%;
+  --secondary-foreground: 0 0% 9%;
+  --muted: 0 0% 96.1%;
+  --muted-foreground: 0 0% 45.1%;
+  --accent: 0 0% 96.1%;
+  --accent-foreground: 0 0% 9%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 0 0% 89.8%;
+  --input: 0 0% 89.8%;
+  --ring: 0 0% 3.9%;
+  --radius: 0.5rem;
+
+  /* Geist comes from next/font (the --font-geist-sans variable class sits on the same element). */
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-sans);
+  color: hsl(var(--foreground));
+}
+
+/* shadcn's base border colour, inside the portal only and at zero specificity so any utility class still wins. */
+:where(.portal) *,
+:where(.portal) ::before,
+:where(.portal) ::after {
+  border-color: hsl(var(--border));
+}
+
+/* Page colour behind the portal app (also shows on iOS overscroll). */
+body:has(.portal-app) {
+  background-color: #f6f6f6;
+}

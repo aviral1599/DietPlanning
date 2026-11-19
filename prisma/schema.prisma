@@ -112,6 +112,7 @@ model DietChart {
   updatedAt DateTime        @updatedAt
   requests  ChangeRequest[]
   choices   MealChoice[]
+  checks    MealCheck[]
 
   @@index([coachId])
   @@index([reportId])
@@ -158,6 +159,19 @@ model MealChoice {
   updatedAt DateTime @updatedAt
 
   @@unique([chartId, day, uid])
+  @@index([chartId])
+}
+
+// A whole meal the client ticked as eaten on a plan day (portal "Today" tick).
+model MealCheck {
+  id        String    @id @default(cuid())
+  chartId   String
+  chart     DietChart @relation(fields: [chartId], references: [id], onDelete: Cascade)
+  day       Int // ChartDay.day (0-based)
+  meal      String // MealTime key, e.g. "breakfast"
+  createdAt DateTime  @default(now())
+
+  @@unique([chartId, day, meal])
   @@index([chartId])
 }
 
