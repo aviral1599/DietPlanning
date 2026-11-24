@@ -9,6 +9,11 @@ import { INGREDIENTS } from "@/lib/foodbank/ingredients";
 import { CUISINE_SHORT, ROLE_LABELS, tagLabel, type Cuisine, type Dish, type DishRole, type DishTag } from "@/lib/foodbank/types";
 import { DIET_TYPE_LABELS, FOOD_GROUP_LABELS, type DietType, type FoodGroup } from "@/lib/types";
 import CustomDishEditor from "./CustomDishEditor";
+import dynamic from "next/dynamic";
+
+const NvifTable = dynamic(() => import("./NvifTable"), {
+  loading: () => <div className="card p-6 text-sm text-slate-400">Loading reference tables…</div>,
+});
 import { RecipeContext } from "@/components/foodbank/RecipeEditor";
 import { useRecipeBank } from "@/components/foodbank/useRecipeBank";
 
@@ -22,6 +27,7 @@ const DIETS = [
 
 const TAGS: { value: DishTag; label: string }[] = [
   { value: "ir-friendly", label: "Insulin-friendly" },
+  { value: "low-carb", label: "Low-carb (LCHF)" },
   { value: "anti-inflammatory", label: "Anti-inflammatory" },
   { value: "high-protein", label: "High protein" },
   { value: "high-fibre", label: "High fibre" },
@@ -45,7 +51,7 @@ const CONDITIONS: DietType[] = ["insulin-resistance", "diabetes", "pcos", "weigh
 
 export default function FoodBankBrowser() {
   const [customRows, setCustomRows] = useState<CustomDishRow[]>([]);
-  const [tab, setTab] = useState<"dishes" | "ingredients">("dishes");
+  const [tab, setTab] = useState<"dishes" | "ingredients" | "nvif">("dishes");
   const [q, setQ] = useState("");
   const [roles, setRoles] = useState<DishRole[]>([]);
   const [cuisines, setCuisines] = useState<Cuisine[]>([]);
@@ -124,9 +130,12 @@ export default function FoodBankBrowser() {
       <div className="mb-4 flex gap-2">
         <Chip tone="slate" active={tab === "dishes"} onClick={() => setTab("dishes")}>Dishes</Chip>
         <Chip tone="slate" active={tab === "ingredients"} onClick={() => setTab("ingredients")}>Ingredients</Chip>
+        <Chip tone="slate" active={tab === "nvif"} onClick={() => setTab("nvif")}>NIN 1989 reference</Chip>
       </div>
 
-      {tab === "ingredients" ? (
+      {tab === "nvif" ? (
+        <NvifTable />
+      ) : tab === "ingredients" ? (
         <IngredientsTable />
       ) : (
         <>
@@ -186,7 +195,7 @@ export default function FoodBankBrowser() {
                   <div className="mt-2 text-xs text-slate-500">{formatPortion(d, d.unit.default)}{d.unit.note ? ` · ${d.unit.note}` : ""}</div>
                   <div className="mt-0.5 text-xs"><MacroLine kcal={n.kcal} protein={n.protein} carbs={n.carbs} fat={n.fat} /></div>
                   <div className="mt-2 flex flex-wrap gap-1">
-                    {d.allTags.filter((t) => ["ir-friendly", "high-protein", "high-fibre", "millet", "iron-rich", "calcium-rich", "low-cal", "fried", "probiotic"].includes(t)).slice(0, 4).map((t) => (
+                    {d.allTags.filter((t) => ["ir-friendly", "low-carb", "high-protein", "high-fibre", "millet", "iron-rich", "calcium-rich", "low-cal", "fried", "probiotic"].includes(t)).slice(0, 4).map((t) => (
                       <span key={t} className={`rounded-full px-2 py-0.5 text-[10px] ${t === "ir-friendly" ? "bg-amber-100 text-amber-800" : "bg-slate-100 text-slate-600"}`}>{tagLabel(t)}</span>
                     ))}
                     {d.gi === "low" && <span className="rounded-full bg-brand-50 px-2 py-0.5 text-[10px] text-brand-700">low GI</span>}

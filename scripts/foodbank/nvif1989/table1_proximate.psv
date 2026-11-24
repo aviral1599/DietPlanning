@@ -1,0 +1,452 @@
+sl|name|group|moisture|protein|fat|minerals|fibre|carbs|kcal|calcium|phosphorus|iron
+1|Bajra|Cereal grains and products|12.4|11.6|5.0|2.3|1.2|67.5|361|42|296|8.0
+2|Barley|Cereal grains and products|12.5|11.5|1.3|1.2|3.9|69.6|336|26|215|1.67
+3|Italian millet|Cereal grains and products|11.2|12.3|4.3|3.3|8.0|60.9|331|31|290|2.8
+4|Jowar|Cereal grains and products|11.9|10.4|1.9|1.6|1.6|72.6|349|25|222|4.1
+5|Maize, dry|Cereal grains and products|14.9|11.1|3.6|1.5|2.7|66.2|342|10|348|2.3
+6|Maize, tender|Cereal grains and products|67.1|4.7|0.9|0.8|1.9|24.6|125|9|121|1.1
+7|Panivaragu|Cereal grains and products|11.9|12.5|1.1|1.9|2.2|70.4|341|14|206|0.8
+8|Ragi|Cereal grains and products|13.1|7.3|1.3|2.7|3.6|72.0|328|344|283|3.9
+9|Rice, parboiled, handpounded|Cereal grains and products|12.6|8.5|0.6|0.9||77.4|349|10|280|2.8
+10|Rice, parboiled, milled|Cereal grains and products|13.3|6.4|0.4|0.7|0.2|79.0|346|9|143|1.0
+11|Rice, raw, handpounded|Cereal grains and products|13.3|7.5|1.0|0.9|0.6|76.7|346|10|190|3.2
+12|Rice, raw, milled|Cereal grains and products|13.7|6.8|0.5|0.6|0.2|78.2|345|10|160|0.7
+13|Rice, bran|Cereal grains and products|11.0|13.5|16.2|6.6|4.3|48.4|393|67|1410|35.0
+14|Rice, flakes|Cereal grains and products|12.2|6.6|1.2|2.0|0.7|77.3|346|20|238|20.0
+15|Rice, puffed|Cereal grains and products|14.7|7.5|0.1|3.8|0.3|73.6|325|23|150|6.6
+16|Samai|Cereal grains and products|11.5|7.7|4.7|1.5|7.6|67.0|341|17|220|9.3
+17|Sanwa millet|Cereal grains and products|11.9|6.2|2.2|4.4|9.8|65.5|307|20|280|5.0
+18|Varagu|Cereal grains and products|12.8|8.3|1.4|2.6|9.0|65.9|309|27|188|0.5
+19|Wheat, bulgar (parboiled)|Cereal grains and products|9.8|8.2|1.6|1.5|1.7|77.2|356|37|298|4.9
+20|Wheat, whole|Cereal grains and products|12.8|11.8|1.5|1.5|1.2|71.2|346|41|306|5.3
+21|Wheat, flour (whole)|Cereal grains and products|12.2|12.1|1.7|2.7|1.9|69.4|341|48|355|4.9
+22|Wheat, flour (refined)|Cereal grains and products|13.3|11.0|0.9|0.6|0.3|73.9|348|23|121|2.7
+23|Wheat, germ|Cereal grains and products|5.2|29.2|7.4|3.5|1.4|53.3|397|40|846|6.0
+24|Wheat, semolina|Cereal grains and products||10.4|0.8||0.2|74.8|348|16|102|1.6
+25|Wheat, vermicelli|Cereal grains and products|11.7|8.7|0.4|0.7|0.2|78.3|352|22|92|2.0
+26|Wheat, bread (brown)|Cereal grains and products|39.0|8.8|1.4||1.2|49.0|244|18||2.2
+27|Wheat, bread (white)|Cereal grains and products|39.0|7.8|0.7||0.2|51.9|245|11||1.1
+28|Bengal gram, whole|Pulses and legumes|9.8|17.1|5.3|3.0|3.9|60.9|360|202|312|4.6
+29|Bengal gram, dhal|Pulses and legumes|9.9|20.8|5.6|2.7|1.2|59.8|372|56|331|5.3
+30|Bengal gram, roasted|Pulses and legumes|10.7|22.5|5.2|2.5|1.0|58.1|369|58|340|9.5
+31|Black gram, dhal|Pulses and legumes|10.9|24.0|1.4|3.2|0.9|59.6|347|154|385|3.8
+32|Cow pea|Pulses and legumes|13.4|24.1|1.0|3.2|3.8|54.5|323|77|414|8.6
+33|Field bean, dry|Pulses and legumes|9.6|24.9|0.8|3.2|1.4|60.1|347|60|433|2.7
+34|Green gram, whole|Pulses and legumes|10.4|24.0|1.3|3.5|4.1|56.7|334|124|326|4.4
+35|Green gram, dhal|Pulses and legumes|10.1|24.5|1.2|3.5|0.8|59.9|348|75|405|3.9
+36|Horse gram, whole|Pulses and legumes|11.8|22.0|0.5|3.2|5.3|57.2|321|287|311|6.77
+37|Khesari, dhal|Pulses and legumes|10.0|28.2|0.6|2.3|2.3|56.6|345|90|317|6.3
+38|Lentil|Pulses and legumes|12.4|25.1|0.7|2.1|0.7|59.0|343|69|293|7.58
+39|Moth beans|Pulses and legumes|10.8|23.6|1.1|3.5|4.5|56.5|330|202|230|9.5
+40|Peas, green|Pulses and legumes|72.9|7.2|0.1|0.8|4.0|15.9|93|20|139|1.5
+41|Peas, dry|Pulses and legumes|16.0|19.7|1.1|2.2|4.5|56.5|315|75|298|7.05
+42|Peas, roasted|Pulses and legumes|10.1|22.9|1.4|2.4|4.4|58.8|340|81|345|6.4
+43|Rajmah|Pulses and legumes|12.0|22.9|1.3|3.2|4.8|60.6|346|260|410|5.1
+44|Redgram, dhal|Pulses and legumes|13.4|22.3|1.7|3.5|1.5|57.6|335|73|304|2.7
+45|Redgram (tender)|Pulses and legumes|65.1|9.8|1.0|1.0|6.2|16.9|116|57|164|1.1
+46|Soyabean|Pulses and legumes|8.1|43.2|19.5|4.6|3.7|20.9|432|240|690|10.4
+47|Agathi|Leafy vegetables|73.1|8.4|1.4|3.1|2.2|11.8|93|1130|80|3.9
+48|Amaranth caudatus|Leafy vegetables|90.0|3.0|0.7|3.3|1.0|2.0|26|200|40|
+49|Amaranth gangeticus (tender)|Leafy vegetables|85.7|4.0|0.5|2.7|1.0|6.1|45|397|83|3.49
+50|Amaranth gangeticus (stem)|Leafy vegetables|92.5|0.9|0.1|1.8|1.2|3.5|19|260|30|1.8
+51|Amaranth paniculatus|Leafy vegetables|78.6|5.9|1.0|3.8|2.1|8.6|67|530|60|18.4
+52|Amaranth polygonoides|Leafy vegetables|90.0|2.8|0.3|2.1||4.8|33|251|55|27.3
+53|Amaranth spinosus|Leafy vegetables|85.0|3.0|0.3|3.6|1.1|7.0|43|800|50|22.9
+54|Amaranth species (Chakravarthikeerai)|Leafy vegetables|80.6|4.5|0.6|4.2|1.6|8.5|57|321|71|18.0
+55|Amaranth species (Koyakeerai)|Leafy vegetables|88.0|2.8|0.5|1.2|2.2|5.3|37|292|51|2.5
+56|Amaranth tristis|Leafy vegetables|87.0|2.8|0.4|2.4||7.4|44|364|52|38.5
+57|Amaranth viridis|Leafy vegetables|81.8|5.2|0.3|2.8|6.1|3.8|38|330|52|18.7
+58|Ambat chuka|Leafy vegetables|95.2|1.6|0.3|0.9|0.6|1.4|15|63|17|0.75
+59|Bathua leaves|Leafy vegetables|89.6|3.7|0.4|2.6|0.8|2.9|30|150|80|4.2
+60|Beet greens|Leafy vegetables|86.4|3.4|0.8|2.2|0.7|6.5|46|380|30|16.2
+61|Bengal gram leaves|Leafy vegetables|73.4|7.0|1.4|2.1|2.0|14.1|97|340|120|23.8
+62|Betel leaves|Leafy vegetables|85.4|3.1|0.8|2.3|2.3|6.1|44|230|40|10.6
+63|Bottle gourd leaves|Leafy vegetables|87.9|2.3|0.7|1.7|1.3|6.1|39|80|59|
+64|Broad bean leaves|Leafy vegetables|77.6|5.6|0.3|1.3|3.7|11.5|71|111|149|
+65|Brussels sprouts|Leafy vegetables|85.5|4.7|0.5|1.0|1.2|7.1|52|43|82|1.8
+66|Cabbage|Leafy vegetables|91.9|1.8|0.1|0.6|1.0|4.6|27|39|44|0.8
+67|Carrot leaves|Leafy vegetables|76.6|5.1|0.5|2.8|1.9|13.1|77|340|110|8.8
+68|Cauliflower greens|Leafy vegetables|80.0|5.9|1.3|3.2|2.0|7.6|66|626|107|40.0
+69|Celery leaves|Leafy vegetables|88.0|6.3|0.6|2.1|1.4|1.6|37|230|140|6.3
+70|Celery stalk|Leafy vegetables|93.5|0.8|0.1|0.9|1.2|3.5|18|30|38|4.8
+71|Chekkur manis|Leafy vegetables|73.6|6.8|3.2|3.4|1.4|11.6|103|570|200|28.0
+72|Colocasia leaves (black variety)|Leafy vegetables|78.8|6.8|2.0|2.5|1.8|8.1|77|460|125|0.98
+73|Colocasia leaves (green variety)|Leafy vegetables|82.7|3.9|1.5|2.2|2.9|6.8|56|227|82|10.0
+74|Colocasia leaves (dried)|Leafy vegetables|9.3|13.7|5.9|12.8|16.0|42.3|277|1546|308|
+75|Coriander leaves|Leafy vegetables|86.3|3.3|0.6|2.3|1.2|6.3|44|184|71|1.42
+76|Cow pea leaves|Leafy vegetables|89.0|3.4|0.7|1.6|1.2|4.1|38|290|58|20.1
+77|Curry leaves|Leafy vegetables|63.8|6.1|1.0|4.0|6.4|18.7|108|830|57|0.93
+78|Drumstick leaves|Leafy vegetables|75.9|6.7|1.7|2.3|0.9|12.5|92|440|70|0.85
+79|Fenugreek leaves|Leafy vegetables|86.1|4.4|0.9|1.5|1.1|6.0|49|395|51|1.93
+80|Fetid cassia (fresh)|Leafy vegetables|84.9|5.0|0.8|1.7|2.1|5.5|49|520|39|12.4
+81|Fetid cassia (dried)|Leafy vegetables|9.7|20.7|3.9|11.8|10.4|43.5|292|3200|292|
+82|Garden cress|Leafy vegetables|82.3|5.8|1.0|2.2||8.7|67|360|110|28.6
+83|Garden sorrel (sepals)|Leafy vegetables|91.9|0.6|0.2|0.9|1.3|5.1|25|130|20|1.7
+84|Gogu|Leafy vegetables|86.4|1.7|1.1|0.9||9.9|56|172|40|2.28
+85|Ipomoea stems|Leafy vegetables|93.7|0.9|0.2|1.8||3.4|19|80|30|0.8
+86|Ipomoea leaves|Leafy vegetables|90.3|2.9|0.4|2.1|1.2|3.1|28|110|46|3.9
+87|Knol-khol greens|Leafy vegetables|86.7|3.5|0.4|1.2|1.8|6.4|43|740|50|13.3
+88|Kuppameni|Leafy vegetables|80.5|6.7|1.4|3.1|2.3|6.0|64|667|99|17.3
+89|Lettuce|Leafy vegetables|93.4|2.1|0.3|1.2|0.5|2.5|21|50|28|2.4
+90|Lettuce tree leaves, mature|Leafy vegetables|81.7|5.1|0.4|2.6||10.2|65|320|80|2.6
+91|Lettuce tree leaves, tender|Leafy vegetables|90.2|3.6|0.2|2.2|0.6|3.2|29|170|60|3.6
+92|Manathakkali leaves|Leafy vegetables|82.1|5.9|1.0|2.1||8.9|68|410|70|20.5
+93|Mayalu|Leafy vegetables|90.8|2.8|0.4|1.8||4.2|32|200|35|10.0
+94|Mint|Leafy vegetables|84.9|4.8|0.6|1.9|2.0|5.8|48|200|62|15.6
+95|Modakanthan keerai|Leafy vegetables|83.3|4.7|0.6|2.3||9.1|61|||
+96|Mukarrate keerai|Leafy vegetables|84.5|6.1|0.9|1.3||7.2|61|667|99|18.4
+97|Mustard leaves|Leafy vegetables|89.8|4.0|0.6|1.6|0.8|3.2|34|155|26|16.3
+98|Nerringi|Leafy vegetables|79.1|7.2|0.5|4.6||8.6|68|1550|82|9.2
+99|Parsley|Leafy vegetables|74.6|5.9|1.0|3.2|1.8|13.5|87|390|175|17.9
+100|Paruppu keerai|Leafy vegetables|90.5|2.4|0.6|2.3|1.3|2.9|27|111|45|14.8
+101|Ponnanganni|Leafy vegetables|77.4|5.0|0.7|2.5|2.8|11.6|73|510|60|1.63
+102|Pumpkin leaves|Leafy vegetables|81.9|4.6|0.8|2.7|2.1|7.9|57|392|112|
+103|Radish leaves|Leafy vegetables|90.8|3.8|0.4|1.6|1.0|2.4|28|265|59|0.09
+104|Radish leaves, table|Leafy vegetables|89.1|3.9|0.6|1.6|0.6|4.2|38|310|60|18.0
+105|Rape stem|Leafy vegetables|91.4|3.1|0.1|1.4||4.0|29|100|100|1.2
+106|Rape leaves|Leafy vegetables|84.9|5.1|0.4|2.5|1.2|5.9|48|370|110|12.5
+107|Rape leaves (dried)|Leafy vegetables|7.4|27.0|2.9|15.3|6.7|40.7|297|3095|500|
+108|Safflower leaves|Leafy vegetables|91.1|2.5|0.6|1.3||4.5|33|185|35|5.7
+109|Shepu|Leafy vegetables|88.0|3.0|0.5|2.2|1.1|5.2|37|190|42|17.4
+110|Spinach|Leafy vegetables|92.1|2.0|0.7|1.7|0.6|2.9|26|73|21|1.14
+111|Spinach stalks|Leafy vegetables|93.4|0.9|0.1|1.8||3.8|20|90|20|1.6
+112|Susni sag|Leafy vegetables|86.9|3.7|1.4|2.1|1.3|4.6|46|53|91|
+113|Tamarind leaves, tender|Leafy vegetables|70.5|5.8|2.1|1.5|1.9|18.2|115|101|140|0.30
+114|Turnip greens|Leafy vegetables|81.9|4.0|1.5|2.2|1.0|9.4|67|710|60|28.4
+115|Arrow root flour|Roots and tubers|16.5|0.2|0.1|0.1||83.1|334|10|20|1.0
+116|Banana rhizome|Roots and tubers|85.1|0.4|0.2|1.4|1.1|11.8|51|25|10|1.1
+117|Beet root|Roots and tubers|87.7|1.7|0.1|0.8|0.9|8.8|43|18.3|55|1.19
+118|Carrot|Roots and tubers|86.0|0.9|0.2|1.1|1.2|10.6|48|80|530|1.03
+119|Colocasia|Roots and tubers|73.1|3.0|0.1|1.7|1.0|21.1|97|40|140|0.42
+120|Khamalu|Roots and tubers|79.6|1.3|0.1|0.8|0.1|18.1|79|16|31|0.5
+121|Mango ginger|Roots and tubers|85.0|1.1|0.7|1.4|1.3|10.5|53|25|90|2.6
+122|Onion, big|Roots and tubers|86.6|1.2|0.1|0.4|0.6|11.1|50|46.9|50|0.60
+123|Onion, small|Roots and tubers|84.3|1.8|0.1|0.6|0.6|12.6|59|40|60|1.2
+124|Parsnip|Roots and tubers|72.4|1.3|0.3|1.1|1.7|23.2|101|50|40|0.5
+125|Potato|Roots and tubers|74.7|1.6|0.1|0.6|0.4|22.6|97|10|40|0.48
+126|Radish, pink|Roots and tubers|90.8|0.6|0.3|0.9|0.6|6.8|32|50|20|0.37
+127|Radish, rat-tailed|Roots and tubers|92.3|1.3|0.3|0.7|1.1|4.3|25|78|24|
+128|Radish, table|Roots and tubers|94.9|0.5|0.1|0.7|0.6|3.2|16|20|20|1.0
+129|Radish, white|Roots and tubers|94.4|0.7|0.1|0.6|0.8|3.4|17|35|22|0.4
+130|Sweet potato|Roots and tubers|68.5|1.2|0.3|1.0|0.8|28.2|120|46|50|0.21
+131|Tapioca|Roots and tubers|59.4|0.7|0.2|1.0|0.6|38.1|157|50|40|0.9
+132|Tapioca chips, dried|Roots and tubers|12.0|1.3|0.3|2.0|1.8|82.6|338|91|70|3.6
+133|Turnip|Roots and tubers|91.6|0.5|0.2|0.6|0.9|6.2|29|30|40|0.4
+134|Yam, elephant|Roots and tubers|78.7|1.2|0.1|0.8|0.8|18.4|79|50|34|0.6
+135|Yam, ordinary|Roots and tubers|69.9|1.4|0.1|1.6|1.0|26.0|111|35|20|1.19
+136|Yam, wild|Roots and tubers|70.4|2.5|0.3|1.4|1.0|24.4|110|20|74|1.0
+137|Ash gourd|Other vegetables|96.5|0.4|0.1|0.3|0.8|1.9|10|30|20|0.8
+138|Beans, scarlet runner|Other vegetables|58.3|7.4|1.0|1.6|1.9|29.8|158|50|160|2.6
+139|Bitter gourd|Other vegetables|92.4|1.6|0.2|0.8|0.8|4.2|25|20|70|0.61
+140|Bitter gourd, small|Other vegetables|83.2|2.1|1.0|1.4|1.7|10.6|60|23|38|2.0
+141|Bottle gourd|Other vegetables|96.1|0.2|0.1|0.5|0.6|2.5|12|20|10|0.46
+142|Brinjal|Other vegetables|92.7|1.4|0.3|0.3|1.3|4.0|24|18|47|0.38
+143|Broad beans|Other vegetables|85.4|4.5|0.1|0.8|2.0|7.2|48|50|64|1.4
+144|Cauliflower|Other vegetables|90.8|2.6|0.4|1.0|1.2|4.0|30|33|57|1.23
+145|Cho-cho-marrow|Other vegetables|92.5|0.7|0.1|0.4|0.6|5.7|27|140|30|0.6
+146|Cluster beans|Other vegetables|81.0|3.2|0.4|1.4|3.2|10.8|16|130|57|1.08
+147|Colocasia stem|Other vegetables|94.0|0.3|0.3|1.2|0.6|3.6|18|60|20|0.5
+148|Cowpea pods|Other vegetables|85.3|3.5|0.2|0.9|2.0|8.1|48|72|59|2.5
+149|Cucumber|Other vegetables|96.3|0.4|0.1|0.3|0.4|2.5|13|10|25|0.60
+150|Double beans|Other vegetables|73.8|8.3|0.3|1.0|4.3|12.3|85|40|140|2.3
+151|Drumstick|Other vegetables|86.9|2.5|0.1|2.0|4.8|3.7|26|30|110|0.18
+152|Drumstick flowers|Other vegetables|85.9|3.6|0.8|1.3|1.3|7.1|50|51|90|
+153|Field beans, tender|Other vegetables|86.1|3.8|0.7|0.9|1.8|6.7|48|210|68|0.83
+154|Figs, red (Ficus cunia)|Other vegetables|79.4|1.2|0.6|1.6|6.4|10.8|53|187|39|
+155|French beans|Other vegetables|91.4|1.7|0.1|0.5|1.8|4.5|26|50|28|0.61
+156|Ghosala|Other vegetables|93.2|1.2|0.2|0.5|2.0|2.9|18|36|19|1.1
+157|Giant chillies (capsicum)|Other vegetables|92.4|1.3|0.3|0.7|1.0|4.3|24|10|30|0.567
+158|Jack, tender|Other vegetables|84.0|2.6|0.3|0.9|2.8|9.4|51|30|40|1.7
+159|Jack fruit, seeds|Other vegetables|64.5|6.6|0.4|1.2|1.5|25.8|133|50|97|1.5
+160|Kankoda|Other vegetables|84.1|3.1|1.0|1.1|3.0|7.7|52|33|42|4.6
+161|Karonda, fresh|Other vegetables|91.0|1.1|2.9|0.6|1.5|2.9|42|21|28|
+162|Karonda, dry|Other vegetables|18.2|2.3|9.6|2.8||67.1|364|160|60|39.1
+163|Kheksa|Other vegetables|90.4|0.6|0.1|0.9|1.6|6.4|29|27|38|
+164|Kovai|Other vegetables|93.5|1.2|0.1|0.5|1.6|3.1|18|40|30|0.38
+165|Knol-khol|Other vegetables|92.7|1.1|0.2|0.7|1.5|3.8|21|20|35|1.54
+166|Ladies fingers|Other vegetables|89.6|1.9|0.2|0.7|1.2|6.4|35|66|56|0.35
+167|Lakuch, raw|Other vegetables|89.4|1.6|1.2|1.1|2.8|13.9|73|67|25|
+168|Leeks|Other vegetables|78.9|1.8|0.1|0.7|1.3|17.2|77|50|70|2.3
+169|Lotus stem, dry|Other vegetables|9.5|4.1|1.3|8.7|25.0|51.4|234|405|128|60.6
+170|Mango, green|Other vegetables|87.5|0.7|0.1|0.4|1.2|10.1|44|10|19|0.33
+171|Onion stalks|Other vegetables|87.6|0.9|0.2|0.8|1.6|8.9|41|50|50|7.43
+172|Papaya, green|Other vegetables|92.0|0.7|0.2|0.5|0.9|5.7|27|28|40|0.9
+173|Parwar|Other vegetables|92.0|2.0|0.3|0.5|3.0|2.2|20|30|40|1.7
+174|Pink beans|Other vegetables|86.8|3.1|0.4|0.6|2.1|7.0|44|54|70|1.5
+175|Plantain flower|Other vegetables|89.9|1.7|0.7|1.3|1.3|5.1|34|32|42|1.6
+176|Plantain, green|Other vegetables|83.2|1.4|0.2|0.5|0.7|14.0|64|10|29|6.27
+177|Plantain stem|Other vegetables|88.3|0.5|0.1|0.6|0.8|9.7|42|10|10|1.1
+178|Pumpkin fruit|Other vegetables|92.6|1.4|0.1|0.6|0.7|4.6|25|10|30|0.44
+179|Pumpkin flowers|Other vegetables|89.1|2.2|0.8|1.4|0.7|5.8|39|120|60|
+180|Ridge gourd|Other vegetables|95.2|0.5|0.1|0.3|0.5|3.4|17|18|26|0.39
+181|Snake gourd|Other vegetables|94.6|0.5|0.3|0.5|0.8|3.3|18|26|20|1.51
+182|Sundakai, dry|Other vegetables|12.3|8.3|1.7|5.1|17.6|55.0|269|390|180|22.2
+183|Sword beans|Other vegetables|87.2|2.7|0.2|0.6|1.5|7.8|44|60|40|2.0
+184|Tinda, tender|Other vegetables|93.5|1.4|0.2|0.5|1.0|3.4|21|25|24|0.9
+185|Tomato, green|Other vegetables|93.1|1.9|0.1|0.6|0.7|3.6|23|20|36|1.8
+186|Vegetable marrow|Other vegetables|94.8|0.5|0.1|0.3|0.8|3.5|17|10|30|0.6
+187|Water chestnut, fresh|Other vegetables|70.0|4.7|0.3|1.1|0.6|23.3|115|20|150|1.35
+188|Water chestnut, dry|Other vegetables|13.8|13.4|0.8|3.1||68.9|330|70|440|2.4
+189|Almond|Nuts and oilseeds|5.2|20.8|58.9|2.9|1.7|10.5|655|230|490|5.09
+190|Arecanut|Nuts and oilseeds|31.3|4.9|4.4|1.0|11.2|47.2|249|50|130|1.5
+191|Avocado pear (nut)|Nuts and oilseeds|63.7|2.5|0.7|1.1||32.0|144|20|80|1.2
+192|Cashewnut|Nuts and oilseeds|5.9|21.2|46.9|2.4|1.3|22.3|596|50|450|5.81
+193|Chilgoza|Nuts and oilseeds|4.0|13.9|49.3|2.8|1.0|29.0|615|91|494|3.6
+194|Coconut, dry|Nuts and oilseeds|4.3|6.8|62.3|1.6|6.6|18.4|662|400|210|7.8
+195|Coconut, fresh|Nuts and oilseeds|36.3|4.5|41.6|1.0|3.6|13.0|444|10|240|1.7
+196|Coconut, tender|Nuts and oilseeds|90.8|0.9|1.4|0.6||6.3|41|10|30|0.9
+197|Coconut milk|Nuts and oilseeds|42.8|3.4|41.0|0.9|0|11.9|430|15|140|1.6
+198|Coconut water|Nuts and oilseeds|93.8|1.4|0.1|0.3|0|4.4|24|24|10|0.1
+199|Coconut meal, deoiled|Nuts and oilseeds|8.7|23.8|2.8|7.0|9.8|47.9|312|112|646|69.4
+200|Garden cress seeds|Nuts and oilseeds|3.2|25.3|24.5|6.4|7.6|33.0|454|377|723|100.0
+201|Gingelly seeds|Nuts and oilseeds|5.3|18.3|43.3|5.2|2.9|25.0|563|1450|570|9.3
+202|Groundnut|Nuts and oilseeds|3.0|25.3|40.1|2.4|3.1|26.1|567|90|350|2.5
+203|Groundnut, roasted|Nuts and oilseeds|1.7|26.2|39.8|2.5|3.1|26.7|570|77|370|3.1
+204|Groundnut cake|Nuts and oilseeds|7.2|40.9|7.4|2.5|3.2|38.8|386|213|548|
+205|Linseed seeds|Nuts and oilseeds|6.5|20.3|37.1|2.4|4.8|28.9|530|170|370|2.7
+206|Mustard seeds|Nuts and oilseeds|8.5|20.0|39.7|4.2|1.8|23.8|541|490|700|7.9
+207|Niger seeds|Nuts and oilseeds|4.2|23.9|39.0|4.9|10.9|17.1|515|300|224|56.7
+208|Pistachio nut|Nuts and oilseeds|5.6|19.8|53.5|2.8|2.1|16.2|626|140|430|7.7
+209|Piyal seeds (chironji)|Nuts and oilseeds|3.0|19.0|59.1|3.0|3.8|12.1|656|279|528|8.5
+210|Safflower seeds|Nuts and oilseeds|5.5|13.5|25.6|2.6|34.9|17.9|356|236|823|4.6
+211|Sunflower seeds|Nuts and oilseeds|5.5|19.8|52.1|3.7|1.0|17.9|620|280|670|5.0
+212|Walnut|Nuts and oilseeds|4.5|15.6|64.5|1.8|2.6|11.0|687|100|380|2.64
+213|Water melon seeds (kernel)|Nuts and oilseeds|4.3|34.1|52.6|3.7|0.8|4.5|628|100|937|7.4
+214|Arisithippili|Condiments and spices|12.5|13.2|4.7|6.0|5.2|58.4|329|460|325|13.50
+215|Asafoetida|Condiments and spices|16.0|4.0|1.1|7.0|4.1|67.8|297|690|50|39.4
+216|Cardamom|Condiments and spices|20.0|10.2|2.2|5.4|20.1|42.1|229|130|160|4.6
+217|Chillies, dry|Condiments and spices|10.0|15.9|6.2|6.1|30.2|31.6|246|160|370|2.3
+218|Chillies, green|Condiments and spices|85.7|2.9|0.6|1.0|6.8|3.0|29|30|80|4.4
+219|Cloves, dry|Condiments and spices|25.2|5.2|8.9|5.2|9.5|46.0|286|740|100|11.7
+220|Cloves, green|Condiments and spices|65.5|2.3|5.9|2.2||24.1|159|310|40|2.1
+221|Coriander (seeds)|Condiments and spices|11.2|14.1|16.1|4.4|32.6|21.6|288|630|393|7.1
+222|Cumin seeds|Condiments and spices|11.9|18.7|15.0|5.8|12.0|36.6|356|1080|511|11.7
+223|Fenugreek seeds|Condiments and spices|13.7|26.2|5.8|3.0|7.2|44.1|333|160|370|6.5
+224|Garlic, dry|Condiments and spices|62.0|6.3|0.1|1.0|0.8|29.8|145|30|310|1.2
+225|Ginger, fresh|Condiments and spices|80.9|2.3|0.9|1.2|2.4|12.3|67|20|60|3.5
+226|Lime peel|Condiments and spices|66.5|1.8|0.5|1.8||29.4|129|710|60|2.7
+227|Mace|Condiments and spices|15.9|6.5|24.4|1.6|3.8|47.8|437|180|100|12.3
+228|Mango powder|Condiments and spices|6.8|2.8|7.8|4.9|13.7|64.0|337|180|16|45.2
+229|Nutmeg fruit|Condiments and spices|14.3|7.5|36.4|1.7|11.6|28.5|472|120|240|2.03
+230|Nutmeg rind|Condiments and spices|86.8|1.0|0.4|0.6||11.2|52|40|10|2.0
+231|Omum (ajwain)|Condiments and spices|7.4|17.1|21.8|7.9|21.2|24.6|363|1525|443|12.5
+232|Pepper, dry (black)|Condiments and spices|18.2|11.5|6.8|4.4|14.9|49.2|304|460|198|12.4
+233|Pepper, green|Condiments and spices|70.6|4.8|2.7|1.8|6.4|13.7|98|270|70|2.4
+234|Pippali|Condiments and spices|12.2|6.4|2.3|4.8|8.5|65.8|310|1230|190|62.1
+235|Poppy seeds|Condiments and spices|4.3|21.7|19.3|9.9|8.0|36.8|408|1584|432|15.9
+236|Tamarind pulp|Condiments and spices|20.9|3.1|0.1|2.9|5.6|67.4|283|170|110|17.0
+237|Turmeric|Condiments and spices|13.1|6.3|5.1|3.5|2.6|69.4|349|150|282|67.8
+238|Ambada|Fruits|90.3|0.7|3.0|0.5|1.0|4.5|48|36|11|3.9
+239|Amla|Fruits|81.8|0.5|0.1|0.5|3.4|13.7|58|50|20|1.2
+240|Apple|Fruits|84.6|0.2|0.5|0.3|1.0|13.4|59|10|14|0.660
+241|Apricot, fresh|Fruits|85.3|1.0|0.3|0.7|1.1|11.6|53|20|25|2.2
+242|Apricot, dry|Fruits|19.4|1.6|0.7|2.8|2.1|73.4|306|110|70|4.6
+243|Avocado pear|Fruits|73.6|1.7|22.8|1.1||0.8|215|10|80|0.7
+244|Bael fruit|Fruits|61.5|1.8|0.3|1.7|2.9|31.8|137|85|50|0.6
+245|Banana, ripe|Fruits|70.1|1.2|0.3|0.8|0.4|27.2|116|17|36|0.36
+246|Banyan tree figs|Fruits|74.1|1.7|2.0|1.9|8.5|11.8|72|364|43|
+247|Bilimbi|Fruits|94.4|0.5|0.3|0.3|1.0|3.5|19|15|10|1.2
+248|Bread fruit|Fruits|79.5|1.5|0.2|0.9|2.1|15.8|71|40|30|0.5
+249|Bullock's heart|Fruits|76.8|1.4|0.2|0.7|5.2|15.7|70|10|10|0.6
+250|Cape gooseberry|Fruits|82.9|1.8|0.2|0.8|3.2|11.1|53|10|67|2.0
+251|Cashew fruit|Fruits|86.3|0.2|0.1|0.2|0.9|12.3|51|10|10|0.2
+252|Cherries, red|Fruits|83.4|1.1|0.5|0.8|0.4|13.8|64|24|25|0.57
+253|Currants, black|Fruits|18.4|2.7|0.5|2.2|1.0|75.2|316|130|110|8.5
+254|Dates, dried|Fruits|15.3|2.5|0.4|2.1|3.9|75.8|317|120|50|7.3
+255|Dates, fresh|Fruits|59.2|1.2|0.4|1.7|3.7|33.8|144|22|38|0.96
+256|Figs (Ficus carica)|Fruits|88.1|1.3|0.2|0.6|2.2|7.6|37|80|30|1.0
+257|Grapes, blue variety|Fruits|82.2|0.6|0.4|0.9|2.8|13.1|58|20|23|0.5
+258|Grapes, pale green variety|Fruits|79.2|0.5|0.3|0.6|2.9|16.5|71|20|30|0.52
+259|Grape fruit, marsh's seedless|Fruits|88.5|1.0|0.1|0.4||10.0|45|30|30|0.2
+260|Grape fruit, triumph|Fruits|92.0|0.7|0.1|0.2||7.0|32|20|20|0.2
+261|Guava, country|Fruits|81.7|0.9|0.3|0.7|5.2|11.2|51|10|28|0.27
+262|Guava, hill|Fruits|85.3|0.1|0.2|0.6|4.8|9.0|38|50|20|1.2
+263|Harfarowrie|Fruits|91.2|0.7|0.6|0.5|1.1|5.9|32|6|6|
+264|Jack fruit|Fruits|76.2|1.9|0.1|0.9|1.1|19.8|88|20|41|0.56
+265|Jamb, safed|Fruits|93.5|0.1|0.4|0.1|2.2|3.7|19|17|3|0.1
+266|Jambu fruit (jamun)|Fruits|83.7|0.7|0.3|0.4|0.9|14.0|62|15|15|0.43
+267|Korukkapalli|Fruits|79.2|2.7|0.4|0.7|1.0|16.0|78|14|49|1.0
+268|Lakuch|Fruits|82.1|0.7|1.1|0.8|2.0|13.3|66|50|20|0.5
+269|Lemon|Fruits|85.0|1.0|0.9|0.3|1.7|11.1|57|70|10|0.26
+270|Lemon, sweet|Fruits|90.5|0.7|0.3|0.5|0.7|7.3|35|30|20|0.7
+271|Lichi|Fruits|84.1|1.1|0.2|0.5|0.5|13.6|61|10|35|0.7
+272|Lichies, bastard|Fruits|83.9|1.4|0.3|0.8|0.5|13.1|61|15|35|
+273|Lime|Fruits|84.6|1.5|1.0|0.7|1.3|10.9|59|90|20|0.3
+274|Lime, sweet, malta|Fruits|90.3|0.7|0.2|0.4|0.6|7.8|36|30|20|1.0
+275|Lime, sweet, musambi|Fruits|88.4|0.8|0.3|0.7|0.5|9.3|43|40|30|0.7
+276|Loquat|Fruits|88.2|0.6|0.3|0.5|0.8|9.6|43|30|20|1.3
+277|Mahua, ripe|Fruits|73.6|1.4|1.6|0.7||22.7|111|45|22|0.23
+278|Mango, ripe|Fruits|81.0|0.6|0.4|0.4|0.7|16.9|74|14|16|1.3
+279|Mangosteen|Fruits|84.9|0.5|0.1|0.2||14.3|60|10|20|0.2
+280|Melon, musk|Fruits|95.2|0.3|0.2|0.4|0.4|3.5|17|32|14|1.4
+281|Melon, water|Fruits|95.8|0.2|0.2|0.3|0.2|3.3|16|11|12|7.9
+282|Mulberry|Fruits|86.5|1.1|0.4|0.6|1.1|10.3|49|70|30|2.3
+283|Orange|Fruits|87.6|0.7|0.2|0.3|0.3|10.9|48|26|20|0.32
+284|Orange juice|Fruits|97.7|0.2|0.1|0.1||1.9|9|5|9|0.7
+285|Palmyra fruit, ripe (mesocarp)|Fruits|77.2|0.7|0.2|0.7|0.5|20.7|87|9|33|
+286|Palmyra fruit, tender|Fruits|92.3|0.6|0.1|0.2|0.3|6.5|29|10|20|0.5
+287|Papaya, ripe|Fruits|90.8|0.6|0.1|0.5|0.8|7.2|32|17|13|0.5
+288|Passion fruit|Fruits|76.3|0.9|0.1|0.7|9.6|12.4|54|10|60|2.0
+289|Passion fruit juice|Fruits|89.0|1.2|0.2|0.7|1.2|7.7|37|10|30|0.7
+290|Peaches|Fruits|86.0|1.2|0.3|0.8|1.2|10.5|50|15|41|2.4
+291|Pears|Fruits|86.0|0.6|0.2|0.3|1.0|11.9|52|8|15|0.5
+292|Persimmon|Fruits|80.0|0.7|0.2|0.3|0.9|17.9|76|15|10|0.3
+293|Phalsa|Fruits|80.8|1.3|0.9|1.1|1.2|14.7|72|129|39|3.1
+294|Pine apple|Fruits|87.8|0.4|0.1|0.4|0.5|10.8|46|20|9|2.42
+295|Plum|Fruits|86.9|0.7|0.5|0.4|0.4|11.1|52|10|12|0.6
+296|Pomegranate|Fruits|78.0|1.6|0.1|0.7|5.1|14.5|65|10|70|1.79
+297|Prunes|Fruits|85.3|0.5|0.3|0.6|0.5|12.8|56|10|18|
+298|Pummelo|Fruits|88.0|0.6|0.1|0.5|0.6|10.2|44|30|30|0.3
+299|Quince|Fruits|85.7|0.3|0.1|0.3|1.7|11.9|50|10|20|0.4
+300|Raisins|Fruits|20.2|1.8|0.3|2.0|1.1|74.6|308|87|80|7.7
+301|Raspberry|Fruits|84.8|1.0|0.6|0.9|1.0|11.7|56|40|110|2.3
+302|Rose apple|Fruits|89.1|0.7|0.2|0.3|1.2|8.5|39|10|30|0.5
+303|Sapota|Fruits|73.7|0.7|1.1|0.5|2.6|21.4|98|28|27|1.25
+304|Seethaphal (custard apple)|Fruits|70.5|1.6|0.4|0.9|3.1|23.5|104|17|47|4.31
+305|Strawberry|Fruits|87.8|0.7|0.2|0.4|1.1|9.8|44|30|30|1.8
+306|Tomato, ripe|Fruits|94.0|0.9|0.2|0.5|0.8|3.6|20|48|20|0.64
+307|Tomatillo|Fruits|91.7|0.7|0.6|0.6|0.6|5.8|31|7|40|1.4
+308|Tree tomato|Fruits|86.2|1.5|0.2|1.2|4.2|6.7|35|12|46|1.0
+309|Wood apple|Fruits|64.2|7.1|3.7|1.9|5.0|18.1|134|130|110|0.48
+310|Zizyphus|Fruits|81.6|0.8|0.3|0.3||17.0|74|4|9|0.50
+311|Air|Fishes and other sea foods|78.1|15.9|1.3|1.2||3.5|89|380|180|0.7
+312|Anchovy|Fishes and other sea foods|69.3|19.3|9.6|1.6||0.2|164|143|174|1.5
+313|Bacha|Fishes and other sea foods|68.8|18.1|5.6|1.4||6.1|147|520|180|0.7
+314|Bam|Fishes and other sea foods|74.8|16.1|0.9|1.3||6.9|100|330|240|0.8
+315|Baspata machli|Fishes and other sea foods|76.1|18.2|4.4|1.4||0|112|175|225|
+316|Bata, small varieties|Fishes and other sea foods|79.0|14.3|2.5|2.0||2.2|89|790|200|1.1
+317|Beley|Fishes and other sea foods|79.7|14.5|0.6|2.3||2.9|75|370|330|1.0
+318|Bhagon, fresh|Fishes and other sea foods|70.6|14.8|8.8|2.0||3.8|154|182|190|1.2
+319|Bhagon, dried|Fishes and other sea foods|17.9|61.5|2.3|16.5||1.8|274|6235|207|9.3
+320|Bhangan bata|Fishes and other sea foods|67.3|19.4|4.4|2.2||6.7|144|580|310|1.1
+321|Bhekti, fresh|Fishes and other sea foods|79.9|14.9|0.8|1.4||3.0|79|480|350|3.1
+322|Bhekti, dried|Fishes and other sea foods|20.1|60.2|2.0|15.9||1.8|266|939|347|15.0
+323|Bhola|Fishes and other sea foods|78.1|15.2|1.1|1.9||3.7|86|550|580|0.4
+324|Big jawed jumper|Fishes and other sea foods|73.3|19.4|5.8|1.4||0.1|130|214|306|3.4
+325|Boal|Fishes and other sea foods|73.3|15.4|2.7|1.3||7.6|116|160|490|0.6
+326|Bombay duck, dried|Fishes and other sea foods|16.7|61.7|4.0|15.1||2.5|293|1389|240|19.1
+327|Blue mussel|Fishes and other sea foods|81.5|9.9|2.0|3.0||3.6|72|1134|286|8.0
+328|Cat fish|Fishes and other sea foods|77.1|21.4|||||86|10|230|
+329|Chela|Fishes and other sea foods|77.5|14.6|4.3|2.1||1.5|103|590|340|2.0
+330|Chela, dried|Fishes and other sea foods|4.7|64.8|17.0|13.4||0.1|413|3590|2342|
+331|Chingri, small, dried|Fishes and other sea foods|17.9|62.4|3.9|13.9||1.9|292|3539|354|27.9
+332|Chingri goda, dried|Fishes and other sea foods|14.9|60.0|3.2|17.3||4.6|287|3847|828|49.6
+333|Chital|Fishes and other sea foods|75.0|18.6|2.3|1.0||3.1|108|180|250|3.0
+334|Crab, muscle|Fishes and other sea foods|83.5|8.9|1.1|3.2||3.3|59|1370|150|21.2
+335|Crab, small|Fishes and other sea foods|65.3|11.2|9.8|4.6||9.1|169|1606|253|
+336|Folui|Fishes and other sea foods|73.0|19.0|1.0|2.5||3.7|109|590|450|1.7
+337|Ghol|Fishes and other sea foods|69.7|18.4|0.9||||82|90|150|2.1
+338|Goggler|Fishes and other sea foods|76.9|18.7|1.6|1.8||1.0|93|437|349|8.2
+339|Herring, Indian|Fishes and other sea foods|72.8|20.3|3.2|1.5||2.2|119|429|305|9.3
+340|Herring, ox-eyed|Fishes and other sea foods|73.7|20.7|2.2|1.6||0.8|106|429|131|6.3
+341|Hilsa|Fishes and other sea foods|53.7|21.8|19.4|2.2||2.9|273|180|280|2.1
+342|Horse mackerel|Fishes and other sea foods|76.9|21.2|1.6|1.3||0|99|357|262|2.0
+343|Indian whiting|Fishes and other sea foods|77.1|19.2|0.6|1.5||1.6|89|71|262|2.2
+344|Jew fish (kora)|Fishes and other sea foods|78.3|18.8|0.8|1.9||0.2|83|286|305|4.4
+345|Jew fish (pallikora)|Fishes and other sea foods|77.0|20.0|2.2|1.6|||100|214|262|4.8
+346|Kalabasu|Fishes and other sea foods|81.0|14.7|1.0|1.3||2.0|76|320|380|0.8
+347|Katla|Fishes and other sea foods|73.7|19.5|2.4|1.5||2.9|111|530|235|0.9
+348|Khorsula|Fishes and other sea foods|75.3|16.3|5.1|1.8||1.5|117|410|160|0.6
+349|Khoyra, fresh|Fishes and other sea foods|72.0|18.0|3.0|1.8||5.2|120|590|220|0.7
+350|Khoyra, dried|Fishes and other sea foods|17.3|58.9|6.2|16.4||1.2|296|||
+351|Koi|Fishes and other sea foods|70.0|14.8|8.8|2.0||4.4|156|410|390|1.4
+352|Koocha machli|Fishes and other sea foods|76.7|18.7|0.8|1.4||2.4|92|185|119|
+353|Lata|Fishes and other sea foods|74.0|19.4|0.6|2.6||3.4|97|610|530|1.3
+354|Lobster|Fishes and other sea foods|77.3|20.5|0.9|1.4||0|90|16|279|
+355|Mackerel|Fishes and other sea foods|77.3|18.9|1.7|1.6||0.5|93|429|305|4.5
+356|Magur|Fishes and other sea foods|78.5|15.0|1.0|1.3||4.2|86|210|290|0.7
+357|Mahasole|Fishes and other sea foods|70.3|25.2|2.3|1.2||1.0|126|130|280|3.8
+358|Mandeli, dried|Fishes and other sea foods|31.1|52.5|5.4||||259|143|259|11.9
+359|Mrigal|Fishes and other sea foods|75.0|19.5|0.8|1.5||3.2|98|350|280|1.1
+360|Mullet|Fishes and other sea foods|69.9|19.1|7.8|1.1||2.1|155|357|175|4.4
+361|Mushi, dried|Fishes and other sea foods|9.6|67.0|4.9||||312|541|507|2.7
+362|Mussel, fresh water|Fishes and other sea foods|79.5|14.5|1.6|2.3||2.1|81|592|406|
+363|Mutijella, dried|Fishes and other sea foods|19.2|63.6|2.4|11.8||3.0|288|7240|834|1.0
+364|Oil sardine|Fishes and other sea foods|76.5|19.6|2.0|1.8||0.1|97|357|349|6.1
+365|Pabda|Fishes and other sea foods|73.0|19.2|2.1|1.1||4.6|114|310|210|1.3
+366|Pangas|Fishes and other sea foods|72.3|14.2|10.8|1.0||1.7|161|180|130|0.5
+367|Parsey, fresh|Fishes and other sea foods|70.8|17.5|5.9|1.5||4.3|140|850|490|2.7
+368|Parsey, dried|Fishes and other sea foods|11.8|65.0|4.4|15.8||3.0|312|2231|396|17.4
+369|Pomfrets, black|Fishes and other sea foods|74.5|20.3|2.6|1.1||1.5|111|286|306|2.3
+370|Pomfrets, white|Fishes and other sea foods|78.4|17.0|1.3|1.5||1.8|87|200|290|0.9
+371|Prawn|Fishes and other sea foods|77.4|19.1|1.0|1.7||0.8|89|323|278|5.3
+372|Puti|Fishes and other sea foods|75.0|18.1|2.4|1.4||3.1|106|110|96|1.0
+373|Ravas|Fishes and other sea foods|71.4|22.2|1.1|2.0||3.3|112|405|335|2.0
+374|Ray|Fishes and other sea foods|75.3|20.9|0.5|1.2||2.1|97|214|262|5.3
+375|Ribbon fish, fresh|Fishes and other sea foods|76.6|18.1|3.2|1.5||0.6|104|214|218|13.9
+376|Ribbon fish, dried|Fishes and other sea foods|6.7|76.1|8.7||||383|739|700|4.2
+377|Rohu|Fishes and other sea foods|76.7|16.6|1.4|0.9||4.4|97|650|175|1.0
+378|Sardine|Fishes and other sea foods|78.1|21.0|1.9|1.7|||101|90|360|2.5
+379|Sarputi|Fishes and other sea foods|70.2|16.5|9.5|1.5||2.3|161|220|120|0.5
+380|Shark|Fishes and other sea foods|76.0|21.6|0.4|1.2||0.8|93|357|262|1.4
+381|Shrimp (small, dried)|Fishes and other sea foods|6.0|68.1|8.5|17.4|||349|4384|1160|
+382|Seer|Fishes and other sea foods|72.7|22.5|4.0|1.5|||126|71|572|5.4
+383|Silver belly|Fishes and other sea foods|76.4|19.2|1.6|3.2||0|91|715|741|2.2
+384|Singhala|Fishes and other sea foods|61.0|20.9|3.1|1.1||13.9|167|98|152|1.8
+385|Singhi|Fishes and other sea foods|68.0|22.8|0.6|1.7||6.9|124|670|650|2.3
+386|Sole|Fishes and other sea foods|78.0|16.2|2.3|1.3||2.2|94|140|95|0.5
+387|Sole (malabar)|Fishes and other sea foods|78.0|19.5|4.7|3.1|||120|1072|524|0.5
+388|Surmai, fresh|Fishes and other sea foods|63.0|19.9|1.4||||92|92|161|2.0
+389|Surmai, dried|Fishes and other sea foods|43.3|38.6|6.2||||210|148|172|4.4
+390|Tapra (dried)|Fishes and other sea foods|12.6|62.3|9.0|15.1||1.0|334|771|552|19.3
+391|Tapsi (dried)|Fishes and other sea foods|16.2|58.5|12.1|17.2|||343|1597|595|41.2
+392|Tartoor|Fishes and other sea foods|78.3|18.2|0.2|2.1||1.2|79|1072|218|4.9
+393|Tengra, fresh|Fishes and other sea foods|70.0|19.2|6.4|2.1||2.3|144|270|170|2.0
+394|Tengra, dried|Fishes and other sea foods|13.8|54.9|3.9|27.5|||255|843|400|
+395|Tunny|Fishes and other sea foods|71.9|23.8|1.6|1.8||0.9|113|429|349|6.8
+396|White bait|Fishes and other sea foods|79.1|14.5|1.4|2.5||2.5|81|643|437|3.8
+397|Beef meal|Meat and poultry|8.2|79.2|10.3|1.6|0.5|0.2|410|68|324|18.8
+398|Beef muscle|Meat and poultry|74.3|22.6|2.6|1.0|||114|10|190|0.8
+399|Buffalo meat|Meat and poultry|78.7|19.4|0.9|1.0|||86|3|189|
+400|Duck|Meat and poultry|72.3|21.6|4.8|1.2||0.1|130|4|235|
+401|Egg, duck|Meat and poultry|71.0|13.5|13.7|1.0||0.8|181|70|260|2.5
+402|Egg, hen|Meat and poultry|73.7|13.3|13.3|1.0|||173|60|220|2.1
+403|Egg, turtle|Meat and poultry|76.0|12.2|6.7|1.5||3.6|124|93|299|
+404|Finch|Meat and poultry|68.8|26.6|3.0|1.7|||133|90|347|
+405|Fowl|Meat and poultry|72.2|25.9|0.6|1.3|||109|25|245|
+406|Goat meat (lean)|Meat and poultry|74.2|21.4|3.6|1.1|||118|12|193|
+407|Grey quail|Meat and poultry|75.0|21.9|1.7|1.4|||103|22|282|
+408|Liver, goat|Meat and poultry|76.3|20.0|3.0|1.3|||107|17|279|
+409|Liver, sheep|Meat and poultry|70.4|19.3|7.5|1.5||1.3|150|10|380|6.3
+410|Mutton, muscle|Meat and poultry|71.5|18.5|13.3|1.3|||194|150|150|2.5
+411|Pigeon|Meat and poultry|70.4|23.3|4.9|1.4|||137|12|290|
+412|Pork, muscle|Meat and poultry|77.4|18.7|4.4|1.0|||114|30|200|2.2
+413|Ruff and reeve|Meat and poultry|70.3|25.9|2.3|1.5|||124|3|321|
+414|Snail, small|Meat and poultry|78.9|12.6|1.0|3.8||3.7|74|1321|147|
+415|Snail, big|Meat and poultry|74.1|10.5|0.6|2.4||12.4|97|870|116|
+416|Turtle's meat|Meat and poultry|79.4|16.5|1.5|1.1||1.5|86|7|162|
+417|Venison|Meat and poultry|75.3|21.0|0.6|1.2||1.9|97|3|233|
+418|Milk, ass's|Milk and milk products|89.9|2.1|1.5|||6.5|48|80||
+419|Milk, buffalo's|Milk and milk products|81.0|4.3|6.5|0.8||5.0|117|210|130|0.2
+420|Milk, cow's|Milk and milk products|87.5|3.2|4.1|0.8||4.4|67|120|90|0.2
+421|Milk, goat's|Milk and milk products|86.8|3.3|4.5|0.8||4.6|72|170|120|0.3
+422|Milk, human|Milk and milk products|88.0|1.1|3.4|0.1||7.4|65|28|11|
+423|Curds (cow's milk)|Milk and milk products|89.1|3.1|4.0|0.8||3.0|60|149|93|0.2
+424|Butter milk|Milk and milk products|97.5|0.8|1.1|0.1||0.5|15|30|30|0.1
+425|Skimmed milk, liquid|Milk and milk products|92.1|2.5|0.1|0.7||4.6|29|120|90|0.2
+426|Channa, cow's milk|Milk and milk products|57.1|18.3|20.8|2.6||1.2|265|208|138|
+427|Channa, buffalo's milk|Milk and milk products|54.1|13.4|23.0|1.6||7.9|292|480|277|
+428|Cheese|Milk and milk products|40.3|24.1|25.1|4.2||6.3|348|790|520|2.1
+429|Khoa (whole buffalo milk)|Milk and milk products|30.6|14.6|31.2|3.1||20.5|421|650|420|5.8
+430|Khoa (skimmed buffalo milk)|Milk and milk products|46.1|22.3|1.6|4.3||25.7|206|990|650|2.7
+431|Khoa (whole cow milk)|Milk and milk products|25.2|20.0|25.9|4.0||24.9|413|956|613|
+432|Skimmed milk powder (cow's milk)|Milk and milk products|4.1|38.0|0.1|6.8||51.0|357|1370|1000|1.4
+433|Whole milk powder (cow's milk)|Milk and milk products|3.5|25.8|26.7|6.0||38.0|496|950|730|0.6
+434|Butter|Fats and edible oils|19.0||81.0|2.5|||729|||
+435|Ghee (cow)|Fats and edible oils|||100.0||||900|||
+436|Ghee (buffalo)|Fats and edible oils|||100.0||||900|||
+437|Hydrogenated oil (fortified)|Fats and edible oils|||100.0||||900|||
+438|Cooking oil (groundnut, gingelly, palmolein, mustard, coconut etc.)|Fats and edible oils|||100.0||||900|||
+439|Sugar cane (sugar)|Sugars|0.4|0.1|0|0.1||99.4|398|12|1|0.155
+440|Honey|Sugars|20.6|0.3|0|0.2||79.5|319|5|16|0.696
+441|Jaggery (cane)|Sugars|3.9|0.4|0.1|0.6||95.0|383|80|40|2.64
+442|Jaggery (coconut palm)|Sugars|10.3|1.0|0.2|5.0||83.5|340|1638|62|
+443|Jaggery (date palm)|Sugars|9.6|1.5|0.3|2.6||86.1|353|363|62|
+444|Jaggery (fan palm)|Sugars|8.6|1.0|0.1|1.8||98.5|359|225|44|
+445|Jaggery (sago palm)|Sugars|9.2|2.3|0.1|3.7||84.7|349|1252|372|
+446|Sago|Sugars|12.2|0.2|0.2|0.3||87.1|351|10|10|1.3
+447|Pachwai (Assam)|Beverages (alcoholic)|88.2|3.0|1.8|0.6|0.6|5.8|51|12|100|4.5
+448|Toddy, fermented|Beverages (alcoholic)|97.6|0.1|0.3|0.2||1.8|38|||
+449|Toddy, sweet|Beverages (alcoholic)|84.7|0.1|0.3|0.7||14.3|59|150|10|0.3
+450|Neera|Beverages (non-alcoholic)||0.4||0.5||10.9|45|0|140|0.1
+451|Sugar cane juice|Beverages (non-alcoholic)|90.2|0.1|0.2|0.4||9.1|39|10|10|0.1
