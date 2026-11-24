@@ -192,6 +192,7 @@ export type DishTag =
   | "anti-inflammatory"
   | "low-gi" // auto: low glycaemic index and a meaningful carbohydrate load
   | "ir-friendly" // auto: suits insulin resistance / prediabetes (see bank.ts)
+  | "low-carb" // low-carb, healthy-fat (LCHF) recipe — e.g. from the Reversing Diabetes recipe book
   // context
   | "light"
   | "heavy"
@@ -210,6 +211,7 @@ export const GI_VALUE: Record<GI, number> = { low: 45, medium: 62, high: 80 };
 export const TAG_LABELS: Partial<Record<DishTag, string>> = {
   "low-gi": "Low GI",
   "ir-friendly": "Insulin-friendly",
+  "low-carb": "Low-carb (LCHF)",
   "high-protein": "High protein",
   "high-fibre": "High fibre",
   "low-cal": "Low calorie",

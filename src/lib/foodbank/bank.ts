@@ -1,6 +1,10 @@
 import type { DietPreference, DietType, FoodGroup } from "../types";
 import { DISHES } from "./dishes";
 import { INGREDIENTS } from "./ingredients";
+import { EXCHANGE_UNITS } from "../exchange-data";
+
+/** One vegetable (A/B) exchange = 100 g raw vegetable. */
+const VEG_EXCHANGE_GRAMS = 100;
 import {
   Allergen,
   CustomDishData,
@@ -64,27 +68,30 @@ export function roundNutrients(n: Nutrients): Nutrients {
 // ---------------------------------------------------------------------------
 
 function exchangesFor(ing: Ingredient, grams: number): number {
+  // Driven by the same per-exchange values the planner uses (EXCHANGE_UNITS), so dish
+  // exchanges can never drift from the clinic's Food Exchange List.
   const p = ing.per100;
   const f = grams / 100;
+  const u = EXCHANGE_UNITS;
   switch (ing.group) {
     case "CEREALS":
-      return (p.carbs * f) / 15;
+      return (p.carbs * f) / u.CEREALS.cho;
     case "PULSES":
     case "MEAT":
-      return (p.protein * f) / 7;
+      return (p.protein * f) / u[ing.group].protein;
     case "MILK":
-      return (p.protein * f) / 8;
+      return (p.protein * f) / u.MILK.protein;
     case "VEG_A":
     case "VEG_B":
-      return grams / 100;
+      return grams / VEG_EXCHANGE_GRAMS; // vegetable exchange = 100 g raw
     case "VEG_C":
     case "FRUITS":
-      return (p.carbs * f) / 10;
+      return (p.carbs * f) / u[ing.group].cho;
     case "SUGARS":
-      return (p.carbs * f) / 5;
+      return (p.carbs * f) / u.SUGARS.cho;
     case "FATS":
     case "NUTS":
-      return (p.fat * f) / 5;
+      return (p.fat * f) / u[ing.group].fat;
     default:
       return 0;
   }

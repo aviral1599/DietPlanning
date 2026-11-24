@@ -12,7 +12,8 @@
     "db:seed": "tsx prisma/seed.ts",
     "db:studio": "prisma studio",
     "setup": "prisma db push && tsx prisma/seed.ts",
-    "foodbank:check": "tsx scripts/foodbank/validate.ts && tsx scripts/foodbank/test-engine.ts"
+    "foodbank:check": "tsx scripts/foodbank/validate.ts && tsx scripts/foodbank/test-engine.ts",
+    "foodbank:nvif": "tsx scripts/foodbank/check-nvif.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.32.1",

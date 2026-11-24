@@ -11,6 +11,7 @@
 
 import type { MealTime } from "../types";
 import type { DishDef, DishUnit } from "./types";
+import { LCHF_DISHES } from "./dishes-lchf";
 
 // ---- unit helpers ---------------------------------------------------------
 const katori = (def = 1, note = "≈150 g cooked"): DishUnit => ({ label: "katori", plural: "katoris", default: def, step: 0.5, min: 0.5, max: 2.5, note });
@@ -1225,4 +1226,7 @@ export const DISHES: DishDef[] = [
   { id: "low-gi-fruit-bowl", name: "Low-GI Fruit Bowl with Flax", cuisine: "pan-indian", role: "fruit", slots: [...MM, ...ES], unit: bowl(1, "≈150 g"),
     ingredients: { guava: 50, apple: 50, orange: 50, flaxseed: 3 }, tags: ["no-cook", "high-fibre"], gi: "low", freq: "regular", goodFor: ["insulin-resistance", "diabetes", "pcos"],
     method: "Dice guava, apple and orange with skins where edible; sprinkle ground flax and black salt." },
+
+  // Low-carb, healthy-fat recipes from the Reversing Diabetes Clinic recipe book (see dishes-lchf.ts).
+  ...LCHF_DISHES,
 ];
